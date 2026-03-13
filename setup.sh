@@ -2,6 +2,8 @@
 
 set -e
 
+REPO="$HOME/mac-setup"
+
 echo "Running mac setup..."
 
 # ----------------------------
@@ -10,8 +12,13 @@ echo "Running mac setup..."
 
 # ----------------------------
 
+if command -v brew >/dev/null 2>&1; then
+echo "Installing Homebrew packages..."
 brew update
-brew bundle --file ~/mac-setup/Brewfile
+brew bundle --file "$REPO/Brewfile"
+else
+echo "Homebrew not installed. Please run bootstrap.sh first."
+fi
 
 # ----------------------------
 
@@ -21,10 +28,10 @@ brew bundle --file ~/mac-setup/Brewfile
 
 echo "Installing dotfiles..."
 
-ln -sf ~/mac-setup/dotfiles/.zshrc ~/.zshrc
-ln -sf ~/mac-setup/dotfiles/.vimrc ~/.vimrc
-ln -sf ~/mac-setup/dotfiles/.gitconfig ~/.gitconfig
-ln -sf ~/mac-setup/dotfiles/.tmux.conf ~/.tmux.conf
+ln -sf "$REPO/dotfiles/.zshrc" ~/.zshrc
+ln -sf "$REPO/dotfiles/.vimrc" ~/.vimrc
+ln -sf "$REPO/dotfiles/.gitconfig" ~/.gitconfig
+ln -sf "$REPO/dotfiles/.tmux.conf" ~/.tmux.conf
 
 # ----------------------------
 
@@ -35,8 +42,12 @@ ln -sf ~/mac-setup/dotfiles/.tmux.conf ~/.tmux.conf
 echo "Installing scripts..."
 
 mkdir -p ~/bin
-cp ~/mac-setup/scripts/*.sh ~/bin/ 2>/dev/null || true
-chmod +x ~/bin/*.sh
+
+for f in "$REPO/scripts/"*.sh; do
+[ -f "$f" ] || continue
+cp "$f" ~/bin/
+chmod +x ~/bin/$(basename "$f")
+done
 
 # ----------------------------
 
@@ -44,36 +55,52 @@ chmod +x ~/bin/*.sh
 
 # ----------------------------
 
+echo "Installing SSH config..."
+
 mkdir -p ~/.ssh
-cp ~/mac-setup/ssh/config ~/.ssh/ 2>/dev/null || true
+
+if [ ! -f ~/.ssh/config ]; then
+cp "$REPO/ssh/config" ~/.ssh/
+else
+echo "SSH config already exists – skipping."
+fi
 
 # ----------------------------
 
-# wireguard
+# wireguard configs
 
 # ----------------------------
 
-echo "Installing wireguard configs..."
+echo "Installing WireGuard configs..."
 
 sudo mkdir -p /opt/homebrew/etc/wireguard
-sudo cp ~/mac-setup/wireguard/*.conf /opt/homebrew/etc/wireguard/
+
+for f in "$REPO/wireguard/"*.conf; do
+[ -f "$f" ] || continue
+sudo cp -n "$f" /opt/homebrew/etc/wireguard/
+done
 
 # ----------------------------
+
 # WireGuard private key check
+
 # ----------------------------
 
 WG_DIR="/opt/homebrew/etc/wireguard"
 
 if [ -d "$WG_DIR" ]; then
-    if grep -q "<ENTER_PRIVATE_KEY_HERE>" "$WG_DIR"/*.conf 2>/dev/null; then
-        echo ""
-        echo "⚠️  WireGuard configuration requires your private key."
-        echo ""
-        echo "Please edit the following files and insert the key from 1Password:"
-        echo ""
-        ls "$WG_DIR"/*.conf
-        echo ""
-    fi
+if grep -q "<ENTER_PRIVATE_KEY_HERE>" "$WG_DIR"/*.conf 2>/dev/null; then
+echo ""
+echo "⚠️  WireGuard configuration requires your private key."
+echo ""
+echo "Please edit the following files and insert the key from 1Password:"
+echo ""
+ls "$WG_DIR"/*.conf
+echo ""
+echo "Example:"
+echo "vim /opt/homebrew/etc/wireguard/wg-faith.conf"
+echo ""
+fi
 fi
 
 # ----------------------------
@@ -82,16 +109,22 @@ fi
 
 # ----------------------------
 
-mkdir -p "$HOME/Library/Application Support/Code/User"
+echo "Installing VS Code configuration..."
 
-cp ~/mac-setup/vscode/settings.json 
-"$HOME/Library/Application Support/Code/User/" 2>/dev/null || true
+VSCODE_DIR="$HOME/Library/Application Support/Code/User"
 
-cp ~/mac-setup/vscode/keybindings.json 
-"$HOME/Library/Application Support/Code/User/" 2>/dev/null || true
+mkdir -p "$VSCODE_DIR"
 
-cat ~/mac-setup/vscode/extensions.txt | 
-xargs -L 1 code --install-extension 2>/dev/null || true
+[ -f "$REPO/vscode/settings.json" ] && cp "$REPO/vscode/settings.json" "$VSCODE_DIR/"
+[ -f "$REPO/vscode/keybindings.json" ] && cp "$REPO/vscode/keybindings.json" "$VSCODE_DIR/"
+
+if command -v code >/dev/null 2>&1; then
+if [ -f "$REPO/vscode/extensions.txt" ]; then
+cat "$REPO/vscode/extensions.txt" | xargs -L 1 code --install-extension
+fi
+else
+echo "VS Code CLI not available – skipping extension installation."
+fi
 
 # ----------------------------
 
@@ -99,7 +132,13 @@ xargs -L 1 code --install-extension 2>/dev/null || true
 
 # ----------------------------
 
-bash ~/mac-setup/macos/restore.sh 2>/dev/null || true
+echo "Restoring macOS preferences..."
 
+if [ -f "$REPO/macos/restore.sh" ]; then
+bash "$REPO/macos/restore.sh" || true
+fi
+
+echo ""
 echo "Setup complete."
+echo ""
 
