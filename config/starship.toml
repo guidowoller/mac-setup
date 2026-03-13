@@ -1,0 +1,19 @@
+add_newline = false
+
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[➜](bold red)"
+
+[git_branch]
+symbol = " "
+
+[git_status]
+style = "yellow"
+
+[directory]
+truncation_length = 3
+
+[cmd_duration]
+min_time = 500
+format = "took [$duration](yellow)"
+
