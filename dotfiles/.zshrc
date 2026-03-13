@@ -131,6 +131,7 @@ alias uni="$HOME/uni.sh"
 alias a="$HOME/a.sh"
 alias cat="bat"
 alias sync-dotfiles="~/mac-setup/sync.sh && cd ~/mac-setup && git status"
+alias doctor="~/mac-setup/doctor.sh"
 
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
