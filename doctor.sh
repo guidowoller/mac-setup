@@ -22,7 +22,7 @@ fi
 
 # ----------------------------
 
-for cmd in tmux fzf eza starship wireguard-tools; do
+for cmd in tmux fzf eza starship wg; do
 if command -v $cmd >/dev/null 2>&1; then
 echo "✓ $cmd installed"
 else
