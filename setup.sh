@@ -59,6 +59,24 @@ sudo mkdir -p /opt/homebrew/etc/wireguard
 sudo cp ~/mac-setup/wireguard/*.conf /opt/homebrew/etc/wireguard/
 
 # ----------------------------
+# WireGuard private key check
+# ----------------------------
+
+WG_DIR="/opt/homebrew/etc/wireguard"
+
+if [ -d "$WG_DIR" ]; then
+    if grep -q "<ENTER_PRIVATE_KEY_HERE>" "$WG_DIR"/*.conf 2>/dev/null; then
+        echo ""
+        echo "⚠️  WireGuard configuration requires your private key."
+        echo ""
+        echo "Please edit the following files and insert the key from 1Password:"
+        echo ""
+        ls "$WG_DIR"/*.conf
+        echo ""
+    fi
+fi
+
+# ----------------------------
 
 # vscode config
 

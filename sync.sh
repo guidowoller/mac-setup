@@ -60,3 +60,25 @@ code --list-extensions > $REPO/vscode/extensions.txt 2>/dev/null || true
 
 echo "Sync complete."
 
+# ----------------------------
+
+# wireguard templates
+
+# ----------------------------
+
+WG_SRC="/opt/homebrew/etc/wireguard"
+WG_DST="$REPO/wireguard"
+
+mkdir -p "$WG_DST"
+
+for f in "$WG_SRC"/*.conf; do
+[ -f "$f" ] || continue
+fname=$(basename "$f")
+
+```
+sed 's/^PrivateKey.*/PrivateKey = <ENTER_PRIVATE_KEY_HERE>/' "$f" \
+    > "$WG_DST/$fname"
+```
+
+done
+
