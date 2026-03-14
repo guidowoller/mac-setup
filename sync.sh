@@ -26,6 +26,7 @@ mkdir -p $REPO/vscode
 
 [ -f ~/.zshrc ] && cp ~/.zshrc $REPO/dotfiles/
 [ -f ~/.vimrc ] && cp ~/.vimrc $REPO/dotfiles/
+[ -f ~/.nanorc ] && cp ~/.nanorc $REPO/dotfiles/
 [ -f ~/.tmux.conf ] && cp ~/.tmux.conf $REPO/dotfiles/
 [ -f ~/.gitconfig ] && cp ~/.gitconfig $REPO/dotfiles/
 

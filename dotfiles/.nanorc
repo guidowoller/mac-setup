@@ -1,0 +1,27 @@
+## ---------- Editor Verhalten ----------
+
+set linenumbers
+set autoindent
+set tabsize 4
+set tabstospaces
+set mouse
+set historylog
+set positionlog
+set indicator
+
+## ---------- Anzeige ----------
+
+set titlecolor white,blue
+set statuscolor white,green
+set keycolor cyan
+set functioncolor green
+
+## ---------- Syntax Highlighting ----------
+
+include "/opt/homebrew/share/nano/*.nanorc"
+
+## ---------- Backup ----------
+
+set backup
+set backupdir "/Users/guido/.nano-backups"
+
