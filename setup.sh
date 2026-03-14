@@ -30,6 +30,7 @@ echo "Installing dotfiles..."
 
 ln -sf "$REPO/dotfiles/.zshrc" ~/.zshrc
 ln -sf "$REPO/dotfiles/.vimrc" ~/.vimrc
+ln -sf "$REPO/dotfiles/.nanorc" ~/.nanorc
 ln -sf "$REPO/dotfiles/.gitconfig" ~/.gitconfig
 ln -sf "$REPO/dotfiles/.tmux.conf" ~/.tmux.conf
 
