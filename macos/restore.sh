@@ -2,14 +2,50 @@
 
 echo "Restoring macOS settings..."
 
-defaults import com.apple.dock ~/mac-setup/macos/preferences/dock.plist
-defaults import com.apple.finder ~/mac-setup/macos/preferences/finder.plist
-defaults import com.apple.screencapture ~/mac-setup/macos/preferences/screencapture.plist
-defaults import NSGlobalDomain ~/mac-setup/macos/preferences/global.plist
-defaults import com.googlecode.iterm2 ~/mac-setup/macos/preferences/iterm2.plist
+PREF="$HOME/Library/Preferences"
+SRC="$HOME/mac-setup/macos/preferences"
 
-killall Dock
-killall Finder
+# ----------------------------
+# Finder
+# ----------------------------
+
+if [ -f "$SRC/finder.plist" ]; then
+    cp "$SRC/finder.plist" "$PREF/com.apple.finder.plist"
+    killall Finder 2>/dev/null
+fi
+
+# ----------------------------
+# Dock
+# ----------------------------
+
+if [ -f "$SRC/dock.plist" ]; then
+    cp "$SRC/dock.plist" "$PREF/com.apple.dock.plist"
+    killall Dock 2>/dev/null
+fi
+
+# ----------------------------
+# Screenshot settings
+# ----------------------------
+
+if [ -f "$SRC/screencapture.plist" ]; then
+    cp "$SRC/screencapture.plist" "$PREF/com.apple.screencapture.plist"
+    killall SystemUIServer 2>/dev/null
+fi
+
+# ----------------------------
+# Global macOS settings
+# ----------------------------
+
+if [ -f "$SRC/global.plist" ]; then
+    cp "$SRC/global.plist" "$PREF/.GlobalPreferences.plist"
+fi
+
+# ----------------------------
+# iTerm2
+# ----------------------------
+
+if [ -f "$SRC/iterm2.plist" ]; then
+    cp "$SRC/iterm2.plist" "$PREF/com.googlecode.iterm2.plist"
+fi
 
 echo "Settings restored."
-
