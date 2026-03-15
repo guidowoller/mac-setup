@@ -22,6 +22,6 @@ include "/opt/homebrew/share/nano/*.nanorc"
 
 ## ---------- Backup ----------
 
-set backup
-set backupdir "/Users/guido/.nano-backups"
+#set backup
+#set backupdir "/Users/guido/.nano-backups"
 
