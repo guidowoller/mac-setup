@@ -128,6 +128,28 @@ echo "VS Code CLI not available – skipping extension installation."
 fi
 
 # ----------------------------
+# Switch Git remote to SSH
+# ----------------------------
+
+echo "Checking GitHub SSH access..."
+
+if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+    echo "GitHub SSH authentication works."
+
+    CURRENT_REMOTE=$(git remote get-url origin)
+
+    if [[ "$CURRENT_REMOTE" == https://github.com/* ]]; then
+        echo "Switching repository remote from HTTPS to SSH..."
+        git remote set-url origin git@github.com:guidowoller/mac-setup.git
+    else
+        echo "Repository already using SSH."
+    fi
+
+else
+    echo "GitHub SSH not ready yet – keeping HTTPS remote."
+fi
+
+# ----------------------------
 
 # macOS preferences
 
