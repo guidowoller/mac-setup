@@ -51,6 +51,47 @@ chmod +x ~/bin/$(basename "$f")
 done
 
 # ----------------------------
+# starship config
+# ----------------------------
+
+echo "Installing starship configuration..."
+
+mkdir -p ~/.config
+
+cp ~/mac-setup/config/starship.toml ~/.config/starship.toml 2>/dev/null || true
+
+# ----------------------------
+# 1Password SSH agent setup
+# ----------------------------
+
+open -a "1Password"
+echo ""
+echo "--------------------------------------------------"
+echo "Manual step required"
+echo ""
+echo "Please open 1Password now and enable:"
+echo ""
+echo "1Password → Settings → Developer → Use SSH Agent"
+echo ""
+echo "After enabling it, press ENTER to continue..."
+echo "--------------------------------------------------"
+echo ""
+
+read -r
+
+# ----------------------------
+# 1Password SSH agent config
+# ----------------------------
+
+echo "Installing 1Password SSH agent configuration..."
+
+OP_DIR="$HOME/.config/1password/ssh"
+
+mkdir -p "$OP_DIR"
+
+cp ~/mac-setup/1password/agent.toml "$OP_DIR/agent.toml" 2>/dev/null || true
+
+# ----------------------------
 
 # ssh config
 
@@ -67,42 +108,74 @@ echo "SSH config already exists – skipping."
 fi
 
 # ----------------------------
+# wireguard environment
+# ----------------------------
 
+echo ""
+echo "WireGuard configuration"
+echo "Is this a UNI or PRIVATE Mac?"
+echo ""
+echo "u = university mac"
+echo "p = private mac"
+echo ""
+
+read -rp "[u/p]: " WG_ENV
+
+case "$WG_ENV" in
+  u|U)
+    WG_FIM_ITEM="WG FIM-5 Neu Guido Mac Uni"
+    WG_FAITH_ITEM="WG-FAITH Neu Guido Mac Uni"
+    ;;
+  p|P)
+    WG_FIM_ITEM="WG FIM-5 Neu Guido-MacPrivat"
+    WG_FAITH_ITEM="WG-FAITH Neu Guido Mac Privat"
+    ;;
+  *)
+    echo "Invalid selection. Please run setup again."
+    exit 1
+    ;;
+esac
+
+# ----------------------------
 # wireguard configs
-
 # ----------------------------
 
 echo "Installing WireGuard configs..."
 
-sudo mkdir -p /opt/homebrew/etc/wireguard
+WG_SRC="$HOME/mac-setup/wireguard"
+WG_DST="/opt/homebrew/etc/wireguard"
 
-for f in "$REPO/wireguard/"*.conf; do
-[ -f "$f" ] || continue
-sudo cp -n "$f" /opt/homebrew/etc/wireguard/
+sudo mkdir -p "$WG_DST"
+
+WG_FIM_KEY=$(op item get "$WG_FIM_ITEM" --fields private)
+WG_FAITH_KEY=$(op item get "$WG_FAITH_ITEM" --fields private)
+
+for f in "$WG_SRC"/*.conf; do
+    [ -f "$f" ] || continue
+
+    fname=$(basename "$f")
+
+    case "$fname" in
+        wg-fim5.conf)
+            KEY="$WG_FIM_KEY"
+            ;;
+        wg-faith.conf)
+            KEY="$WG_FAITH_KEY"
+            ;;
+        *)
+            KEY=""
+            ;;
+    esac
+
+    if [ -n "$KEY" ]; then
+        sed "s|<ENTER_PRIVATE_KEY_HERE>|$KEY|" "$f" | sudo tee "$WG_DST/$fname" > /dev/null
+    else
+        sudo cp "$f" "$WG_DST/$fname"
+    fi
+
+    sudo chmod 600 "$WG_DST/$fname"
+
 done
-
-# ----------------------------
-
-# WireGuard private key check
-
-# ----------------------------
-
-WG_DIR="/opt/homebrew/etc/wireguard"
-
-if [ -d "$WG_DIR" ]; then
-if grep -q "<ENTER_PRIVATE_KEY_HERE>" "$WG_DIR"/*.conf 2>/dev/null; then
-echo ""
-echo "⚠️  WireGuard configuration requires your private key."
-echo ""
-echo "Please edit the following files and insert the key from 1Password:"
-echo ""
-ls "$WG_DIR"/*.conf
-echo ""
-echo "Example:"
-echo "vim /opt/homebrew/etc/wireguard/wg-faith.conf"
-echo ""
-fi
-fi
 
 # ----------------------------
 
