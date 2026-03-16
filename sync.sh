@@ -17,6 +17,7 @@ mkdir -p $REPO/ssh
 mkdir -p $REPO/scripts
 mkdir -p $REPO/config
 mkdir -p $REPO/vscode
+mkdir -p $REPO/1password
 
 # ----------------------------
 
@@ -63,6 +64,14 @@ echo "Sync complete."
 
 # ----------------------------
 
+# 1password agent
+
+# ----------------------------
+
+[ -f ~/.config/1password/ssh/agent.toml ] && cp ~/.config/1password/ssh/agent.toml $REPO/1password/
+
+# ----------------------------
+
 # wireguard templates
 
 # ----------------------------
@@ -76,10 +85,8 @@ for f in "$WG_SRC"/*.conf; do
 [ -f "$f" ] || continue
 fname=$(basename "$f")
 
-```
 sed 's/^PrivateKey.*/PrivateKey = <ENTER_PRIVATE_KEY_HERE>/' "$f" \
     > "$WG_DST/$fname"
-```
 
 done
 
