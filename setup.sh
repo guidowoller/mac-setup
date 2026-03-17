@@ -19,6 +19,28 @@ else
 fi
 
 # ----------------------------
+# install apache directory studio plugin
+# ----------------------------
+
+echo "Installing Apache Directory Studio plugin..."
+
+ECLIPSE_BIN="/Applications/Eclipse.app/Contents/MacOS/eclipse"
+
+if [ -x "$ECLIPSE_BIN" ]; then
+    "$ECLIPSE_BIN" \
+        -nosplash \
+        -application org.eclipse.equinox.p2.director \
+        -repository https://directory.apache.org/studio/update/ \
+        -installIU org.apache.directory.studio.feature.feature.group \
+        -destination /Applications/Eclipse.app/Contents/Eclipse \
+        -profile DefaultProfile \
+        -profileProperties org.eclipse.update.install.features=true \
+        -roaming
+else
+    echo "Eclipse not found – skipping plugin installation."
+fi
+
+# ----------------------------
 # remove quarantine for brew apps
 # ----------------------------
 
