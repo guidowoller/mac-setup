@@ -46,10 +46,10 @@ alias myip="curl ifconfig.me"
 alias cat="bat"
 
 # Work helpers
-alias wguni="$HOME/wg-uni.sh"
-alias wgdown="$HOME/wg-uni-down.sh"
-alias uni="$HOME/uni.sh"
-alias a="$HOME/a.sh"
+alias wguni="$HOME/bin/wg-uni.sh"
+alias wgdown="$HOME/bin/wg-uni-down.sh"
+alias uni="$HOME/bin/uni.sh"
+alias a="$HOME/bin/a.sh"
 
 # mac-setup helpers
 alias sync-dotfiles="~/mac-setup/sync.sh && cd ~/mac-setup && git status"
