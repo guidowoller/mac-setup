@@ -25,6 +25,7 @@ fi
 echo "Installing Apache Directory Studio plugin..."
 
 ECLIPSE_BIN="/Applications/Eclipse.app/Contents/MacOS/eclipse"
+ECLIPSE_DIR="/Applications/Eclipse.app/Contents/Eclipse"
 
 if [ -x "$ECLIPSE_BIN" ]; then
     "$ECLIPSE_BIN" \
@@ -32,27 +33,23 @@ if [ -x "$ECLIPSE_BIN" ]; then
         -application org.eclipse.equinox.p2.director \
         -repository https://directory.apache.org/studio/update/ \
         -installIU org.apache.directory.studio.feature.feature.group \
-        -destination /Applications/Eclipse.app/Contents/Eclipse \
-        -profile DefaultProfile \
-        -profileProperties org.eclipse.update.install.features=true \
-        -roaming
+        -destination "$ECLIPSE_DIR" \
+        -profile SDKProfile \
+        -profileProperties org.eclipse.update.install.features=true
 else
     echo "Eclipse not found – skipping plugin installation."
 fi
 
 # ----------------------------
-# remove quarantine for brew apps
+# remove quarantine for installed apps
 # ----------------------------
 
-echo "Removing quarantine flags from Homebrew apps..."
+echo "Removing quarantine flags from installed applications..."
 
-for app in $(brew list --cask); do
-    APP_PATH="/Applications/${app}.app"
-
-    if [ -d "$APP_PATH" ]; then
-        echo "→ $APP_PATH"
-        xattr -dr com.apple.quarantine "$APP_PATH" 2>/dev/null || true
-    fi
+for app in /Applications/*.app; do
+    [ -d "$app" ] || continue
+    echo "→ $app"
+    xattr -dr com.apple.quarantine "$app" 2>/dev/null || true
 done
 
 # ----------------------------
