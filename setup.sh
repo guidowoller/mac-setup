@@ -288,6 +288,26 @@ echo "Restoring macOS preferences..."
 
 [ -f "$REPO/macos/restore.sh" ] && bash "$REPO/macos/restore.sh" || true
 
+# ----------------------------
+# set wallpaper (all spaces / monitors)
+# ----------------------------
+
+echo "Setting wallpaper..."
+
+WALLPAPER="$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap/wallpaper.jpg"
+
+if [ -f "$WALLPAPER" ]; then
+osascript <<EOF
+tell application "System Events"
+    tell every desktop
+        set picture to "$WALLPAPER"
+    end tell
+end tell
+EOF
+else
+    echo "Wallpaper not found: $WALLPAPER"
+fi
+
 echo ""
 echo "Setup complete."
 echo ""
