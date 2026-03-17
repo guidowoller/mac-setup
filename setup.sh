@@ -7,23 +7,34 @@ REPO="$HOME/mac-setup"
 echo "Running mac setup..."
 
 # ----------------------------
-
 # Homebrew packages
-
 # ----------------------------
 
 if command -v brew >/dev/null 2>&1; then
-echo "Installing Homebrew packages..."
-brew update
-brew bundle --file "$REPO/Brewfile"
+    echo "Installing Homebrew packages..."
+    brew update
+    brew bundle --file "$REPO/Brewfile"
 else
-echo "Homebrew not installed. Please run bootstrap.sh first."
+    echo "Homebrew not installed. Please run bootstrap.sh first."
 fi
 
 # ----------------------------
+# remove quarantine for brew apps
+# ----------------------------
 
+echo "Removing quarantine flags from Homebrew apps..."
+
+for app in $(brew list --cask); do
+    APP_PATH="/Applications/${app}.app"
+
+    if [ -d "$APP_PATH" ]; then
+        echo "→ $APP_PATH"
+        xattr -dr com.apple.quarantine "$APP_PATH" 2>/dev/null || true
+    fi
+done
+
+# ----------------------------
 # dotfiles
-
 # ----------------------------
 
 echo "Installing dotfiles..."
@@ -35,9 +46,7 @@ ln -sf "$REPO/dotfiles/.gitconfig" ~/.gitconfig
 ln -sf "$REPO/dotfiles/.tmux.conf" ~/.tmux.conf
 
 # ----------------------------
-
 # scripts
-
 # ----------------------------
 
 echo "Installing scripts..."
@@ -45,9 +54,9 @@ echo "Installing scripts..."
 mkdir -p ~/bin
 
 for f in "$REPO/scripts/"*.sh; do
-[ -f "$f" ] || continue
-cp "$f" ~/bin/
-chmod +x ~/bin/$(basename "$f")
+    [ -f "$f" ] || continue
+    cp "$f" ~/bin/
+    chmod +x ~/bin/$(basename "$f")
 done
 
 # ----------------------------
@@ -57,14 +66,14 @@ done
 echo "Installing starship configuration..."
 
 mkdir -p ~/.config
-
-cp ~/mac-setup/config/starship.toml ~/.config/starship.toml 2>/dev/null || true
+cp "$REPO/config/starship.toml" ~/.config/starship.toml 2>/dev/null || true
 
 # ----------------------------
 # 1Password SSH agent setup
 # ----------------------------
 
 open -a "1Password"
+
 echo ""
 echo "--------------------------------------------------"
 echo "Manual step required"
@@ -86,15 +95,12 @@ read -r
 echo "Installing 1Password SSH agent configuration..."
 
 OP_DIR="$HOME/.config/1password/ssh"
-
 mkdir -p "$OP_DIR"
 
-cp ~/mac-setup/1password/agent.toml "$OP_DIR/agent.toml" 2>/dev/null || true
+cp "$REPO/1password/agent.toml" "$OP_DIR/agent.toml" 2>/dev/null || true
 
 # ----------------------------
-
 # ssh config
-
 # ----------------------------
 
 echo "Installing SSH config..."
@@ -102,9 +108,9 @@ echo "Installing SSH config..."
 mkdir -p ~/.ssh
 
 if [ ! -f ~/.ssh/config ]; then
-cp "$REPO/ssh/config" ~/.ssh/
+    cp "$REPO/ssh/config" ~/.ssh/
 else
-echo "SSH config already exists – skipping."
+    echo "SSH config already exists – skipping."
 fi
 
 # ----------------------------
@@ -156,15 +162,9 @@ for f in "$WG_SRC"/*.conf; do
     fname=$(basename "$f")
 
     case "$fname" in
-        wg-fim5.conf)
-            KEY="$WG_FIM_KEY"
-            ;;
-        wg-faith.conf)
-            KEY="$WG_FAITH_KEY"
-            ;;
-        *)
-            KEY=""
-            ;;
+        wg-fim5.conf) KEY="$WG_FIM_KEY" ;;
+        wg-faith.conf) KEY="$WG_FAITH_KEY" ;;
+        *) KEY="" ;;
     esac
 
     if [ -n "$KEY" ]; then
@@ -174,30 +174,94 @@ for f in "$WG_SRC"/*.conf; do
     fi
 
     sudo chmod 600 "$WG_DST/$fname"
-
 done
 
 # ----------------------------
+# initialize eclipse workspace
+# ----------------------------
 
+echo "Initializing Eclipse workspace..."
+
+ECLIPSE_BIN="/Applications/Eclipse.app/Contents/MacOS/eclipse"
+WORKSPACE="$HOME/eclipse-workspace"
+
+mkdir -p "$WORKSPACE"
+
+if [ -x "$ECLIPSE_BIN" ]; then
+    "$ECLIPSE_BIN" -nosplash -data "$WORKSPACE" &
+    ECLIPSE_PID=$!
+
+    sleep 5
+
+    kill $ECLIPSE_PID 2>/dev/null || true
+    wait $ECLIPSE_PID 2>/dev/null || true
+fi
+
+# ----------------------------
+# eclipse + ldap config
+# ----------------------------
+
+echo "Restoring Apache Directory Studio configuration..."
+
+LDAP_DST="$WORKSPACE/.metadata/.plugins"
+LDAP_SRC="$REPO/apache-directory-studio"
+
+mkdir -p "$LDAP_DST"
+cp -R "$LDAP_SRC"/org.apache.directory.studio.* "$LDAP_DST"/ 2>/dev/null || true
+
+# ----------------------------
+# ldap password from 1password
+# ----------------------------
+
+echo "Injecting LDAP password from 1Password..."
+
+LDAP_PASS=$(op item get "FIM woller" --fields Passwort 2>/dev/null || true)
+
+if [ -n "$LDAP_PASS" ]; then
+    PASS_FILE="$HOME/.ldap_pass_tmp"
+    echo "$LDAP_PASS" > "$PASS_FILE"
+    chmod 600 "$PASS_FILE"
+
+    cat <<EOF > "$HOME/set-ldap-pass.exp"
+#!/usr/bin/expect
+set timeout 10
+spawn /Applications/Eclipse.app/Contents/MacOS/eclipse -data $WORKSPACE
+expect {
+    "Password" {
+        send "$(cat $PASS_FILE)\r"
+        exp_continue
+    }
+    timeout {}
+}
+EOF
+
+    chmod +x "$HOME/set-ldap-pass.exp"
+
+    "$HOME/set-ldap-pass.exp" &
+    sleep 5
+
+    rm -f "$PASS_FILE"
+    rm -f "$HOME/set-ldap-pass.exp"
+else
+    echo "⚠️ LDAP password not available"
+fi
+
+# ----------------------------
 # vscode config
-
 # ----------------------------
 
 echo "Installing VS Code configuration..."
 
 VSCODE_DIR="$HOME/Library/Application Support/Code/User"
-
 mkdir -p "$VSCODE_DIR"
 
 [ -f "$REPO/vscode/settings.json" ] && cp "$REPO/vscode/settings.json" "$VSCODE_DIR/"
 [ -f "$REPO/vscode/keybindings.json" ] && cp "$REPO/vscode/keybindings.json" "$VSCODE_DIR/"
 
 if command -v code >/dev/null 2>&1; then
-if [ -f "$REPO/vscode/extensions.txt" ]; then
-cat "$REPO/vscode/extensions.txt" | xargs -L 1 code --install-extension
-fi
+    [ -f "$REPO/vscode/extensions.txt" ] && cat "$REPO/vscode/extensions.txt" | xargs -L 1 code --install-extension
 else
-echo "VS Code CLI not available – skipping extension installation."
+    echo "VS Code CLI not available – skipping extension installation."
 fi
 
 # ----------------------------
@@ -207,34 +271,23 @@ fi
 echo "Checking GitHub SSH access..."
 
 if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
-    echo "GitHub SSH authentication works."
-
     CURRENT_REMOTE=$(git remote get-url origin)
 
     if [[ "$CURRENT_REMOTE" == https://github.com/* ]]; then
-        echo "Switching repository remote from HTTPS to SSH..."
         git remote set-url origin git@github.com:guidowoller/mac-setup.git
-    else
-        echo "Repository already using SSH."
     fi
-
 else
     echo "GitHub SSH not ready yet – keeping HTTPS remote."
 fi
 
 # ----------------------------
-
 # macOS preferences
-
 # ----------------------------
 
 echo "Restoring macOS preferences..."
 
-if [ -f "$REPO/macos/restore.sh" ]; then
-bash "$REPO/macos/restore.sh" || true
-fi
+[ -f "$REPO/macos/restore.sh" ] && bash "$REPO/macos/restore.sh" || true
 
 echo ""
 echo "Setup complete."
 echo ""
-
