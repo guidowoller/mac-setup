@@ -6,9 +6,7 @@ echo ""
 
 EXCLUDE=(
 "Finder"
-"Terminal"
 "iTerm2"
-"System Settings"
 "Dock"
 )
 
