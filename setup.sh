@@ -31,51 +31,6 @@ for app in /Applications/*.app; do
 done
 
 # ----------------------------
-# initialize Eclipse (important for plugin system)
-# ----------------------------
-
-echo "Initializing Eclipse..."
-
-ECLIPSE_BIN="/Applications/Eclipse Java.app/Contents/MacOS/eclipse"
-ECLIPSE_DIR="/Applications/Eclipse Java.app/Contents/Eclipse"
-WORKSPACE="$HOME/eclipse-workspace"
-
-mkdir -p "$WORKSPACE"
-
-if [ -x "$ECLIPSE_BIN" ]; then
-    "$ECLIPSE_BIN" -nosplash -data "$WORKSPACE" &
-    ECLIPSE_PID=$!
-
-    sleep 8
-
-    kill $ECLIPSE_PID 2>/dev/null || true
-    wait $ECLIPSE_PID 2>/dev/null || true
-else
-    echo "Eclipse not found – skipping initialization."
-fi
-
-# ----------------------------
-# install Apache Directory Studio plugin
-# ----------------------------
-
-echo "Installing Apache Directory Studio plugin..."
-
-if [ -x "$ECLIPSE_BIN" ]; then
-    "$ECLIPSE_BIN" \
-        -nosplash \
-        -application org.eclipse.equinox.p2.director \
-        -repository https://directory.apache.org/studio/update/ \
-        -installIU org.apache.directory.studio.feature.feature.group \
-        -destination "$ECLIPSE_DIR" \
-        -profile SDKProfile \
-        -bundlepool "$ECLIPSE_DIR" \
-        -profileProperties org.eclipse.update.install.features=true \
-        -roaming || true
-else
-    echo "Eclipse not found – skipping plugin installation."
-fi
-
-# ----------------------------
 # dotfiles
 # ----------------------------
 
@@ -219,6 +174,64 @@ for f in "$WG_SRC"/*.conf; do
 done
 
 # ----------------------------
+# Eclipse manual plugin step
+# ----------------------------
+
+echo ""
+echo "--------------------------------------------------"
+echo "Manual step required: Apache Directory Studio"
+echo ""
+echo "Please install Apache Directory Studio plugin manually:"
+echo ""
+echo "1. Open Eclipse"
+echo "2. Go to: Help → Install New Software..."
+echo "3. Add the following update site:"
+echo ""
+echo "   https://directory.apache.org/studio/update/"
+echo ""
+echo "4. Select and install:"
+echo "   → LDAP Browser"
+echo ""
+echo "5. Restart Eclipse after installation"
+echo ""
+echo "--------------------------------------------------"
+echo ""
+
+ECLIPSE_BIN="/Applications/Eclipse Java.app/Contents/MacOS/eclipse"
+
+if [ -x "$ECLIPSE_BIN" ]; then
+    echo "Launching Eclipse..."
+    "$ECLIPSE_BIN" &
+    sleep 3
+fi
+
+echo ""
+echo "Press ENTER to continue once finished..."
+read -r
+
+# ----------------------------
+# initialize workspace (robust)
+# ----------------------------
+
+WORKSPACE="$HOME/eclipse-workspace"
+
+if [ ! -d "$WORKSPACE/.metadata" ]; then
+    echo "Initializing Eclipse workspace..."
+
+    mkdir -p "$WORKSPACE"
+
+    if [ -x "$ECLIPSE_BIN" ]; then
+        "$ECLIPSE_BIN" -nosplash -data "$WORKSPACE" &
+        ECLIPSE_PID=$!
+
+        sleep 5
+
+        kill $ECLIPSE_PID 2>/dev/null || true
+        wait $ECLIPSE_PID 2>/dev/null || true
+    fi
+fi
+
+# ----------------------------
 # restore LDAP config
 # ----------------------------
 
@@ -295,3 +308,4 @@ fi
 echo ""
 echo "Setup complete."
 echo ""
+
