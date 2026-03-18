@@ -19,28 +19,6 @@ else
 fi
 
 # ----------------------------
-# install apache directory studio plugin
-# ----------------------------
-
-echo "Installing Apache Directory Studio plugin..."
-
-ECLIPSE_BIN="/Applications/Eclipse.app/Contents/MacOS/eclipse"
-ECLIPSE_DIR="/Applications/Eclipse.app/Contents/Eclipse"
-
-if [ -x "$ECLIPSE_BIN" ]; then
-    "$ECLIPSE_BIN" \
-        -nosplash \
-        -application org.eclipse.equinox.p2.director \
-        -repository https://directory.apache.org/studio/update/ \
-        -installIU org.apache.directory.studio.feature.feature.group \
-        -destination "$ECLIPSE_DIR" \
-        -profile SDKProfile \
-        -profileProperties org.eclipse.update.install.features=true
-else
-    echo "Eclipse not found – skipping plugin installation."
-fi
-
-# ----------------------------
 # remove quarantine for installed apps
 # ----------------------------
 
@@ -51,6 +29,31 @@ for app in /Applications/*.app; do
     echo "→ $app"
     xattr -dr com.apple.quarantine "$app" 2>/dev/null || true
 done
+
+# ----------------------------
+# install apache directory studio plugin
+# ----------------------------
+
+echo "Installing Apache Directory Studio plugin..."
+
+ECLIPSE_BIN="/Applications/Eclipse Java.app/Contents/MacOS/eclipse"
+ECLIPSE_DIR="/Applications/Eclipse Java.app/Contents/Eclipse"
+
+if [ -x "$ECLIPSE_BIN" ]; then
+    "$ECLIPSE_BIN" \
+        -nosplash \
+        -application org.eclipse.equinox.p2.director \
+        -repository https://directory.apache.org/studio/update/ \
+        -installIU org.apache.directory.studio.feature.feature.group \
+        -destination "$ECLIPSE_DIR" \
+        -profile SDKProfile \
+        -bundlepool "$ECLIPSE_DIR" \
+        -profileProperties org.eclipse.update.install.features=true \
+        -roaming
+else
+    echo "Eclipse not found – skipping plugin installation."
+fi
+
 
 # ----------------------------
 # dotfiles
