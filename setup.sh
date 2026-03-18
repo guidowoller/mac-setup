@@ -31,13 +31,34 @@ for app in /Applications/*.app; do
 done
 
 # ----------------------------
-# install apache directory studio plugin
+# initialize Eclipse (important for plugin system)
 # ----------------------------
 
-echo "Installing Apache Directory Studio plugin..."
+echo "Initializing Eclipse..."
 
 ECLIPSE_BIN="/Applications/Eclipse Java.app/Contents/MacOS/eclipse"
 ECLIPSE_DIR="/Applications/Eclipse Java.app/Contents/Eclipse"
+WORKSPACE="$HOME/eclipse-workspace"
+
+mkdir -p "$WORKSPACE"
+
+if [ -x "$ECLIPSE_BIN" ]; then
+    "$ECLIPSE_BIN" -nosplash -data "$WORKSPACE" &
+    ECLIPSE_PID=$!
+
+    sleep 8
+
+    kill $ECLIPSE_PID 2>/dev/null || true
+    wait $ECLIPSE_PID 2>/dev/null || true
+else
+    echo "Eclipse not found – skipping initialization."
+fi
+
+# ----------------------------
+# install Apache Directory Studio plugin
+# ----------------------------
+
+echo "Installing Apache Directory Studio plugin..."
 
 if [ -x "$ECLIPSE_BIN" ]; then
     "$ECLIPSE_BIN" \
@@ -49,11 +70,10 @@ if [ -x "$ECLIPSE_BIN" ]; then
         -profile SDKProfile \
         -bundlepool "$ECLIPSE_DIR" \
         -profileProperties org.eclipse.update.install.features=true \
-        -roaming
+        -roaming || true
 else
     echo "Eclipse not found – skipping plugin installation."
 fi
-
 
 # ----------------------------
 # dotfiles
@@ -199,28 +219,7 @@ for f in "$WG_SRC"/*.conf; do
 done
 
 # ----------------------------
-# initialize eclipse workspace
-# ----------------------------
-
-echo "Initializing Eclipse workspace..."
-
-ECLIPSE_BIN="/Applications/Eclipse.app/Contents/MacOS/eclipse"
-WORKSPACE="$HOME/eclipse-workspace"
-
-mkdir -p "$WORKSPACE"
-
-if [ -x "$ECLIPSE_BIN" ]; then
-    "$ECLIPSE_BIN" -nosplash -data "$WORKSPACE" &
-    ECLIPSE_PID=$!
-
-    sleep 5
-
-    kill $ECLIPSE_PID 2>/dev/null || true
-    wait $ECLIPSE_PID 2>/dev/null || true
-fi
-
-# ----------------------------
-# eclipse + ldap config
+# restore LDAP config
 # ----------------------------
 
 echo "Restoring Apache Directory Studio configuration..."
@@ -230,43 +229,6 @@ LDAP_SRC="$REPO/apache-directory-studio"
 
 mkdir -p "$LDAP_DST"
 cp -R "$LDAP_SRC"/org.apache.directory.studio.* "$LDAP_DST"/ 2>/dev/null || true
-
-# ----------------------------
-# ldap password from 1password
-# ----------------------------
-
-echo "Injecting LDAP password from 1Password..."
-
-LDAP_PASS=$(op item get "FIM woller" --fields Passwort 2>/dev/null || true)
-
-if [ -n "$LDAP_PASS" ]; then
-    PASS_FILE="$HOME/.ldap_pass_tmp"
-    echo "$LDAP_PASS" > "$PASS_FILE"
-    chmod 600 "$PASS_FILE"
-
-    cat <<EOF > "$HOME/set-ldap-pass.exp"
-#!/usr/bin/expect
-set timeout 10
-spawn /Applications/Eclipse.app/Contents/MacOS/eclipse -data $WORKSPACE
-expect {
-    "Password" {
-        send "$(cat $PASS_FILE)\r"
-        exp_continue
-    }
-    timeout {}
-}
-EOF
-
-    chmod +x "$HOME/set-ldap-pass.exp"
-
-    "$HOME/set-ldap-pass.exp" &
-    sleep 5
-
-    rm -f "$PASS_FILE"
-    rm -f "$HOME/set-ldap-pass.exp"
-else
-    echo "⚠️ LDAP password not available"
-fi
 
 # ----------------------------
 # vscode config
@@ -311,7 +273,7 @@ echo "Restoring macOS preferences..."
 [ -f "$REPO/macos/restore.sh" ] && bash "$REPO/macos/restore.sh" || true
 
 # ----------------------------
-# set wallpaper (all spaces / monitors)
+# wallpaper
 # ----------------------------
 
 echo "Setting wallpaper..."
