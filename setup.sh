@@ -173,6 +173,16 @@ for f in "$WG_SRC"/*.conf; do
     sudo chmod 600 "$WG_DST/$fname"
 done
 
+echo ""
+echo "Configuring sudo for WireGuard..."
+
+USER_NAME=$(whoami)
+
+echo "$USER_NAME ALL=(ALL) NOPASSWD: /opt/homebrew/bin/wg-quick, /opt/homebrew/bin/wg" | \
+sudo tee /etc/sudoers.d/wireguard >/dev/null
+
+sudo chmod 440 /etc/sudoers.d/wireguard
+
 # ----------------------------
 # Eclipse manual plugin step
 # ----------------------------
