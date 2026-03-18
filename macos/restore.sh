@@ -48,4 +48,18 @@ if [ -f "$SRC/iterm2.plist" ]; then
     cp "$SRC/iterm2.plist" "$PREF/com.googlecode.iterm2.plist"
 fi
 
+echo "Configuring desktop behavior..."
+
+# Desktop icons OFF
+defaults write com.apple.finder CreateDesktop -bool false
+
+# Widgets OFF (desktop)
+defaults write com.apple.WindowManager StandardHideWidgets -bool true
+
+# Widgets OFF (Stage Manager)
+defaults write com.apple.WindowManager StageManagerHideWidgets -bool true
+
+killall Finder || true
+killall Dock || true
+
 echo "Settings restored."
