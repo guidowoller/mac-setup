@@ -46,16 +46,30 @@ ln -sf "$REPO/dotfiles/.tmux.conf" ~/.tmux.conf
 # scripts
 # ----------------------------
 
-echo "Installing scripts..."
+echo "Installing scripts (symlinks)..."
 
-mkdir -p ~/bin
+BIN_DIR="$HOME/bin"
+SCRIPT_DIR="$REPO/scripts"
 
-for f in "$REPO/scripts/"*.sh; do
+mkdir -p "$BIN_DIR"
+
+for f in "$SCRIPT_DIR"/*.sh; do
     [ -f "$f" ] || continue
-    cp "$f" ~/bin/
-    chmod +x ~/bin/$(basename "$f")
-done
 
+    name=$(basename "$f")
+    target="$BIN_DIR/$name"
+
+    # wenn Datei existiert und kein Symlink → löschen
+    if [ -e "$target" ] && [ ! -L "$target" ]; then
+        rm -f "$target"
+    fi
+
+    # Symlink setzen (überschreibt auch alte Symlinks)
+    ln -sf "$f" "$target"
+
+    chmod +x "$f"
+done
+    
 # ----------------------------
 # starship config
 # ----------------------------
