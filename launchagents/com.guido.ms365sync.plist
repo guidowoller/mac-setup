@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+  <key>Label</key>
+  <string>com.guido.ms365sync</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/osascript</string>
+    <string>/Users/guido/Scripts/ms365sync_strict_v3.scpt</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StartInterval</key>
+  <integer>3600</integer>
+
+  <key>StandardOutPath</key>
+  <string>/Users/guido/Library/Logs/ms365sync.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/guido/Library/Logs/ms365sync.err.log</string>
+
+  <key>LimitLoadToSessionType</key>
+  <string>Aqua</string>
+
+  <key>KeepAlive</key>
+  <dict>
+    <key>NetworkState</key>
+    <true/>
+  </dict>
+
+</dict>
+</plist>
