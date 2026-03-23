@@ -80,6 +80,14 @@ else
 echo "✗ ~/bin missing"
 fi
 
+# ---------------------------
+# ms365script check
+# ---------------------------
+
+launchctl list | grep -q com.guido.ms365sync && echo "✓ ms365sync loaded" || echo "✗ ms365sync missing"
+
+
+
 echo ""
 echo "Doctor check finished."
 echo ""
