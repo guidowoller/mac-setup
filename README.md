@@ -73,3 +73,46 @@ mac-setup/
 ├── vscode
 └── macos
 
+
+
+# mac-setup
+
+## 🚀 Post-Setup Checklist
+
+### 🔐 Einloggen
+- [ ] Google Chrome
+- [ ] Firefox
+- [ ] Microsoft Edge
+- [ ] ChatGPT
+- [ ] Mattermost
+- [ ] Mail (Google Konto)
+- [ ] WhatsApp
+
+---
+
+### 📦 Installieren
+- [ ] LRZ Sync and Share  
+  https://syncandshare.lrz.de/download_client
+
+---
+
+### 🔑 Passwort speichern
+- [ ] Apache Directory Studio (Eclipse)
+  - [ ] Verbindung öffnen
+  - [ ] Passwort eingeben
+  - [ ] Passwort speichern
+
+---
+
+### ⚙️ macOS Einstellungen
+- [ ] Festplattenvollzugriff aktivieren:
+  - System Settings → Privacy & Security → Full Disk Access
+  - iTerm hinzufügen
+
+---
+
+## 🛠 DevOps Bootstrap Commands
+
+### 🔄 Update System
+```bash
+update.sh
