@@ -359,6 +359,7 @@ else
 fi
 
 echo ""
-echo "Setup complete."
+echo "Setup complete. Import README to Apple Notes..."
 echo ""
 
+open -a Notes "$REPO/README.md"
