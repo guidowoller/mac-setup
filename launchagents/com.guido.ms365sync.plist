@@ -10,7 +10,7 @@
   <key>ProgramArguments</key>
   <array>
     <string>/usr/bin/osascript</string>
-    <string>/Users/guido/Scripts/ms365sync_strict_v3.scpt</string>
+    <string>/Users/guido/bin/ms365sync_strict_v3.scpt</string>
   </array>
 
   <key>RunAtLoad</key>

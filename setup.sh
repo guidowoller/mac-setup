@@ -74,31 +74,28 @@ done
 # ms365script (calendar)
 # ----------------------------
 
-echo "Installing ms365 sync..."
+echo "Installing ms365 sync LaunchAgent..."
 
 LAUNCHAGENT_DIR="$HOME/Library/LaunchAgents"
-PLIST_SRC="$REPO/launchagents/com.guido.ms365sync.plist"
-PLIST_DST="$LAUNCHAGENT_DIR/com.guido.ms365sync.plist"
+PLIST_NAME="com.guido.ms365sync.plist"
+PLIST_SRC="$REPO/launchagents/$PLIST_NAME"
+PLIST_DST="$LAUNCHAGENT_DIR/$PLIST_NAME"
 
 mkdir -p "$LAUNCHAGENT_DIR"
 
 # sicherstellen dass Script ausführbar ist
 chmod +x "$REPO/scripts/ms365sync_strict_v3.scpt"
 
-# plist ggf. dynamisch anpassen (Pfad fixen)
-sed "s|/Users/guido/Scripts/ms365sync_strict_v3.scpt|$HOME/bin/ms365sync_strict_v3.scpt|" \
-    "$PLIST_SRC" > "$PLIST_SRC.tmp"
-
-# bestehenden Agent sauber entladen (falls aktiv)
+# alten Agent entladen (falls vorhanden)
 launchctl bootout gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
 
 # Symlink setzen
-ln -sf "$PLIST_SRC.tmp" "$PLIST_DST"
+ln -sf "$PLIST_SRC" "$PLIST_DST"
 
-# laden
+# neu laden
 launchctl bootstrap gui/$(id -u) "$PLIST_DST"
 
-echo "ms365 sync installed."
+echo "ms365 sync ready."
 
     
 # ----------------------------
