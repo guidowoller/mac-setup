@@ -134,6 +134,19 @@ if command -v nvim >/dev/null 2>&1; then
 fi
 
 # ----------------------------
+# iTerm2 profiles
+# ----------------------------
+
+echo "Installing iTerm2 profiles..."
+
+ITERM_PROFILE="$REPO/config/iterm2-profiles.json"
+
+if [ -f "$ITERM_PROFILE" ]; then
+    defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
+    defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$REPO/config"
+fi
+
+# ----------------------------
 # 1Password SSH agent setup
 # ----------------------------
 
