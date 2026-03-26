@@ -137,13 +137,13 @@ fi
 # iTerm2 profiles
 # ----------------------------
 
-echo "Installing iTerm2 profiles..."
+echo "Configuring iTerm2..."
 
-ITERM_PROFILE="$REPO/config/iterm2-profiles.json"
+ITERM_PROFILE_DIR="$REPO/config"
 
-if [ -f "$ITERM_PROFILE" ]; then
+if [ -f "$ITERM_PROFILE_DIR/iterm2-profiles.json" ]; then
     defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
-    defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$REPO/config"
+    defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$ITERM_PROFILE_DIR"
 fi
 
 # ----------------------------
