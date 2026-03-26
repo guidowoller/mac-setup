@@ -19,6 +19,13 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# fzf Gruvbox theme
+export FZF_DEFAULT_OPTS="\
+--color=bg:#282828,fg:#ebdbb2,hl:#fabd2f \
+--color=bg+:#3c3836,fg+:#fbf1c7,hl+:#fabd2f \
+--color=info:#83a598,prompt:#b8bb26,pointer:#fe8019 \
+--color=marker:#d3869b,spinner:#fe8019,header:#83a598"
+
 # eza replacements
 unalias ll 2>/dev/null
 unalias l 2>/dev/null

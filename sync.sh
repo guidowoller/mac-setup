@@ -63,6 +63,18 @@ code --list-extensions > $REPO/vscode/extensions.txt 2>/dev/null || true
 echo "Sync complete."
 
 # ----------------------------
+# nvim config
+# ----------------------------
+
+NVIM_SRC="$HOME/.config/nvim"
+NVIM_DST="$REPO/config/nvim"
+
+if [ -d "$NVIM_SRC" ]; then
+    rm -rf "$NVIM_DST"
+    cp -R "$NVIM_SRC" "$NVIM_DST"
+fi
+
+# ----------------------------
 
 # 1password agent
 

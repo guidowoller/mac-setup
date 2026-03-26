@@ -109,6 +109,31 @@ mkdir -p ~/.config
 cp "$REPO/config/starship.toml" ~/.config/starship.toml 2>/dev/null || true
 
 # ----------------------------
+# nvim config (symlink)
+# ----------------------------
+
+echo "Installing Neovim config..."
+
+NVIM_SRC="$REPO/config/nvim"
+NVIM_DST="$HOME/.config/nvim"
+
+mkdir -p "$HOME/.config"
+
+# alte config entfernen (falls kein symlink)
+if [ -e "$NVIM_DST" ] && [ ! -L "$NVIM_DST" ]; then
+    rm -rf "$NVIM_DST"
+fi
+
+# symlink setzen
+ln -sf "$NVIM_SRC" "$NVIM_DST"
+
+# install plugins (lazy.nvim)
+if command -v nvim >/dev/null 2>&1; then
+    echo "Installing Neovim plugins..."
+    nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+fi
+
+# ----------------------------
 # 1Password SSH agent setup
 # ----------------------------
 
