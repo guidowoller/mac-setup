@@ -7,9 +7,7 @@ REPO="$HOME/mac-setup"
 echo "Syncing configuration..."
 
 # ----------------------------
-
 # ensure directories exist
-
 # ----------------------------
 
 mkdir -p $REPO/dotfiles
@@ -20,37 +18,30 @@ mkdir -p $REPO/vscode
 mkdir -p $REPO/1password
 
 # ----------------------------
-
 # dotfiles
-
 # ----------------------------
 
 [ -f ~/.zshrc ] && cp ~/.zshrc $REPO/dotfiles/
+[ -f ~/.zshrc.iterm ] && cp ~/.zshrc.iterm $REPO/dotfiles/
 [ -f ~/.vimrc ] && cp ~/.vimrc $REPO/dotfiles/
 [ -f ~/.nanorc ] && cp ~/.nanorc $REPO/dotfiles/
 [ -f ~/.tmux.conf ] && cp ~/.tmux.conf $REPO/dotfiles/
 [ -f ~/.gitconfig ] && cp ~/.gitconfig $REPO/dotfiles/
 
 # ----------------------------
-
 # ssh config
-
 # ----------------------------
 
 [ -f ~/.ssh/config ] && cp ~/.ssh/config $REPO/ssh/
 
 # ----------------------------
-
 # starship config
-
 # ----------------------------
 
 [ -f ~/.config/starship.toml ] && cp ~/.config/starship.toml $REPO/config/
 
 # ----------------------------
-
 # vscode settings
-
 # ----------------------------
 
 VSCODE="$HOME/Library/Application Support/Code/User"
@@ -60,7 +51,23 @@ VSCODE="$HOME/Library/Application Support/Code/User"
 
 code --list-extensions > $REPO/vscode/extensions.txt 2>/dev/null || true
 
-echo "Sync complete."
+# ----------------------------
+# scripts (optional safety sync)
+# ----------------------------
+
+BIN_DIR="$HOME/bin"
+SCRIPT_DIR="$REPO/scripts"
+
+for f in "$BIN_DIR"/*.sh; do
+    [ -f "$f" ] || continue
+
+    name=$(basename "$f")
+
+    if [ ! -f "$SCRIPT_DIR/$name" ]; then
+        echo "⚠️ Script missing in repo: $name"
+    fi
+done
+
 
 # ----------------------------
 # nvim config
@@ -75,17 +82,13 @@ if [ -d "$NVIM_SRC" ]; then
 fi
 
 # ----------------------------
-
 # 1password agent
-
 # ----------------------------
 
 [ -f ~/.config/1password/ssh/agent.toml ] && cp ~/.config/1password/ssh/agent.toml $REPO/1password/
 
 # ----------------------------
-
 # wireguard templates
-
 # ----------------------------
 
 WG_SRC="/opt/homebrew/etc/wireguard"
@@ -127,3 +130,6 @@ else
         echo "✓ iTerm2 profiles up to date"
     fi
 fi
+
+echo "Sync complete."
+

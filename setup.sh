@@ -72,7 +72,7 @@ for f in "$SCRIPT_DIR"/*.sh; do
 done
 
 # ----------------------------
-# ms365script (calendar)
+# ms365 sync (LaunchAgent)
 # ----------------------------
 
 echo "Installing ms365 sync LaunchAgent..."
@@ -83,21 +83,26 @@ PLIST_SRC="$REPO/launchagents/$PLIST_NAME"
 PLIST_DST="$LAUNCHAGENT_DIR/$PLIST_NAME"
 
 mkdir -p "$LAUNCHAGENT_DIR"
+mkdir -p "$HOME/Library/Logs"
 
 # sicherstellen dass Script ausführbar ist
 chmod +x "$REPO/scripts/ms365sync_strict_v3.scpt"
 
-# alten Agent entladen (falls vorhanden)
+# plist dynamisch mit $HOME ersetzen
+TMP_PLIST=$(mktemp)
+
+sed "s|\$HOME|$HOME|g" "$PLIST_SRC" > "$TMP_PLIST"
+
+# bestehenden Agent entladen (falls aktiv)
 launchctl bootout gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
 
-# Symlink setzen
-ln -sf "$PLIST_SRC" "$PLIST_DST"
+# neue plist setzen (symlink auf temp file)
+ln -sf "$TMP_PLIST" "$PLIST_DST"
 
 # neu laden
 launchctl bootstrap gui/$(id -u) "$PLIST_DST"
 
 echo "ms365 sync ready."
-
     
 # ----------------------------
 # starship config
@@ -145,6 +150,8 @@ if [ -f "$ITERM_PROFILE_DIR/iterm2-profiles.json" ]; then
     defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
     defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$ITERM_PROFILE_DIR"
 fi
+# iTerm neu laden damit Settings greifen
+killall iTerm2 2>/dev/null || true
 
 # ----------------------------
 # 1Password SSH agent setup
@@ -372,9 +379,15 @@ fi
 # macOS preferences
 # ----------------------------
 
-echo "Restoring macOS preferences..."
+if [ -f "$REPO/macos/restore.sh" ]; then
+    echo "Restoring macOS preferences..."
 
-[ -f "$REPO/macos/restore.sh" ] && bash "$REPO/macos/restore.sh" || true
+    if ! bash "$REPO/macos/restore.sh"; then
+        echo "⚠️ macOS preferences restore had issues"
+    fi
+else
+    echo "No macOS restore script found – skipping."
+fi
 
 # ----------------------------
 # wallpaper
@@ -382,19 +395,26 @@ echo "Restoring macOS preferences..."
 
 echo "Setting wallpaper..."
 
-WALLPAPER="$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap/wallpaper.jpg"
+WALLPAPER="$REPO/assets/wallpaper.jpg"
 
 if [ -f "$WALLPAPER" ]; then
-osascript <<EOF
+    sleep 2
+
+    osascript <<EOF
 tell application "System Events"
-    tell every desktop
-        set picture to "$WALLPAPER"
-    end tell
+    repeat with d in desktops
+        set picture of d to "$WALLPAPER"
+    end repeat
 end tell
 EOF
+
 else
     echo "Wallpaper not found: $WALLPAPER"
 fi
+
+# ----------------------------
+# Finished
+# ----------------------------
 
 echo ""
 echo "Setup complete. Import README to Apple Notes..."
