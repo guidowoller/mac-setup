@@ -38,7 +38,12 @@ mkdir -p $REPO/1password
 # starship config
 # ----------------------------
 
-[ -f ~/.config/starship.toml ] && cp ~/.config/starship.toml $REPO/config/
+if [ -f ~/.config/starship.toml ]; then
+    cp ~/.config/starship.toml $REPO/config/
+    echo "✓ starship config synced"
+else
+    echo "⚠️ no starship config found"
+fi
 
 # ----------------------------
 # vscode settings

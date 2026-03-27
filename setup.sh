@@ -111,7 +111,12 @@ echo "ms365 sync ready."
 echo "Installing starship configuration..."
 
 mkdir -p ~/.config
-cp "$REPO/config/starship.toml" ~/.config/starship.toml 2>/dev/null || true
+
+if [ -f "$REPO/config/starship.toml" ]; then
+    cp "$REPO/config/starship.toml" ~/.config/starship.toml
+else
+    echo "⚠️ starship.toml not found in repo"
+fi
 
 # ----------------------------
 # nvim config (symlink)
