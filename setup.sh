@@ -18,6 +18,11 @@ else
     echo "Homebrew not installed. Please run bootstrap.sh first."
 fi
 
+# ensure brew in PATH
+if [ -d "/opt/homebrew/bin" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 # ----------------------------
 # remove quarantine for installed apps
 # ----------------------------
@@ -36,12 +41,12 @@ done
 
 echo "Installing dotfiles..."
 
-ln -sf "$REPO/dotfiles/.zshrc" ~/.zshrc
-ln -sf "$REPO/dotfiles/.zshrc.iterm" ~/.zshrc.iterm
-ln -sf "$REPO/dotfiles/.vimrc" ~/.vimrc
-ln -sf "$REPO/dotfiles/.nanorc" ~/.nanorc
-ln -sf "$REPO/dotfiles/.gitconfig" ~/.gitconfig
-ln -sf "$REPO/dotfiles/.tmux.conf" ~/.tmux.conf
+ln -sf "$REPO/dotfiles/.zshrc" "$HOME/.zshrc"
+ln -sf "$REPO/dotfiles/.zshrc.iterm" "$HOME/.zshrc.iterm"
+ln -sf "$REPO/dotfiles/.vimrc" "$HOME/.vimrc"
+ln -sf "$REPO/dotfiles/.nanorc" "$HOME/.nanorc"
+ln -sf "$REPO/dotfiles/.gitconfig" "$HOME/.gitconfig"
+ln -sf "$REPO/dotfiles/.tmux.conf" "$HOME/.tmux.conf"
 
 # ----------------------------
 # scripts
@@ -60,14 +65,11 @@ for f in "$SCRIPT_DIR"/*.sh; do
     name=$(basename "$f")
     target="$BIN_DIR/$name"
 
-    # wenn Datei existiert und kein Symlink → löschen
     if [ -e "$target" ] && [ ! -L "$target" ]; then
         rm -f "$target"
     fi
 
-    # Symlink setzen (überschreibt auch alte Symlinks)
     ln -sf "$f" "$target"
-
     chmod +x "$f"
 done
 
@@ -85,38 +87,33 @@ PLIST_DST="$LAUNCHAGENT_DIR/$PLIST_NAME"
 mkdir -p "$LAUNCHAGENT_DIR"
 mkdir -p "$HOME/Library/Logs"
 
-# sicherstellen dass Script ausführbar ist
 chmod +x "$REPO/scripts/ms365sync_strict_v3.scpt"
 
-# plist dynamisch mit $HOME ersetzen
 TMP_PLIST=$(mktemp)
-
 sed "s|\$HOME|$HOME|g" "$PLIST_SRC" > "$TMP_PLIST"
 
-# bestehenden Agent entladen (falls aktiv)
 launchctl bootout gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
-
-# neue plist setzen (symlink auf temp file)
 ln -sf "$TMP_PLIST" "$PLIST_DST"
-
-# neu laden
-launchctl bootstrap gui/$(id -u) "$PLIST_DST"
+launchctl bootstrap gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
 
 echo "ms365 sync ready."
-    
+
 # ----------------------------
-# starship config
+# starship config (symlink)
 # ----------------------------
 
 echo "Installing starship configuration..."
 
-mkdir -p ~/.config
+mkdir -p "$HOME/.config"
 
-if [ -f "$REPO/config/starship.toml" ]; then
-    cp "$REPO/config/starship.toml" ~/.config/starship.toml
-else
-    echo "⚠️ starship.toml not found in repo"
+STARSHIP_SRC="$REPO/config/starship.toml"
+STARSHIP_DST="$HOME/.config/starship.toml"
+
+if [ -e "$STARSHIP_DST" ] && [ ! -L "$STARSHIP_DST" ]; then
+    rm -f "$STARSHIP_DST"
 fi
+
+ln -sf "$STARSHIP_SRC" "$STARSHIP_DST"
 
 # ----------------------------
 # nvim config (symlink)
@@ -129,15 +126,12 @@ NVIM_DST="$HOME/.config/nvim"
 
 mkdir -p "$HOME/.config"
 
-# alte config entfernen (falls kein symlink)
 if [ -e "$NVIM_DST" ] && [ ! -L "$NVIM_DST" ]; then
     rm -rf "$NVIM_DST"
 fi
 
-# symlink setzen
 ln -sf "$NVIM_SRC" "$NVIM_DST"
 
-# install plugins (lazy.nvim)
 if command -v nvim >/dev/null 2>&1; then
     echo "Installing Neovim plugins..."
     nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
@@ -155,7 +149,7 @@ if [ -f "$ITERM_PROFILE_DIR/iterm2-profiles.json" ]; then
     defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
     defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$ITERM_PROFILE_DIR"
 fi
-# iTerm neu laden damit Settings greifen
+
 killall iTerm2 2>/dev/null || true
 
 # ----------------------------
@@ -195,10 +189,10 @@ cp "$REPO/1password/agent.toml" "$OP_DIR/agent.toml" 2>/dev/null || true
 
 echo "Installing SSH config..."
 
-mkdir -p ~/.ssh
+mkdir -p "$HOME/.ssh"
 
-if [ ! -f ~/.ssh/config ]; then
-    cp "$REPO/ssh/config" ~/.ssh/
+if [ ! -f "$HOME/.ssh/config" ]; then
+    cp "$REPO/ssh/config" "$HOME/.ssh/"
 else
     echo "SSH config already exists – skipping."
 fi
@@ -238,7 +232,7 @@ esac
 
 echo "Installing WireGuard configs..."
 
-WG_SRC="$HOME/mac-setup/wireguard"
+WG_SRC="$REPO/wireguard"
 WG_DST="/opt/homebrew/etc/wireguard"
 
 sudo mkdir -p "$WG_DST"
@@ -270,11 +264,14 @@ echo ""
 echo "Configuring sudo for WireGuard..."
 
 USER_NAME=$(whoami)
+SUDOERS_FILE="/etc/sudoers.d/wireguard"
 
-echo "$USER_NAME ALL=(ALL) NOPASSWD: /opt/homebrew/bin/wg-quick, /opt/homebrew/bin/wg" | \
-sudo tee /etc/sudoers.d/wireguard >/dev/null
+if ! sudo grep -q "wg-quick" "$SUDOERS_FILE" 2>/dev/null; then
+    echo "$USER_NAME ALL=(ALL) NOPASSWD: /opt/homebrew/bin/wg-quick, /opt/homebrew/bin/wg" | \
+    sudo tee "$SUDOERS_FILE" >/dev/null
 
-sudo chmod 440 /etc/sudoers.d/wireguard
+    sudo chmod 440 "$SUDOERS_FILE"
+fi
 
 # ----------------------------
 # Eclipse manual plugin step
@@ -284,18 +281,9 @@ echo ""
 echo "--------------------------------------------------"
 echo "Manual step required: Apache Directory Studio"
 echo ""
-echo "Please install Apache Directory Studio plugin manually:"
-echo ""
-echo "1. Open Eclipse"
-echo "2. Go to: Help → Install New Software..."
-echo "3. Add the following update site:"
-echo ""
-echo "   https://directory.apache.org/studio/update/"
-echo ""
-echo "4. Select and install:"
-echo "   → LDAP Browser"
-echo ""
-echo "5. Restart Eclipse after installation"
+echo "Help → Install New Software"
+echo "https://directory.apache.org/studio/update/"
+echo "Install: LDAP Browser"
 echo ""
 echo "--------------------------------------------------"
 echo ""
@@ -305,7 +293,7 @@ ECLIPSE_BIN="/Applications/Eclipse Java.app/Contents/MacOS/eclipse"
 if [ -x "$ECLIPSE_BIN" ]; then
     echo "Launching Eclipse..."
     "$ECLIPSE_BIN" &
-    sleep 3
+    sleep 5
 fi
 
 echo ""
@@ -313,7 +301,7 @@ echo "Press ENTER to continue once finished..."
 read -r
 
 # ----------------------------
-# initialize workspace (robust)
+# initialize workspace
 # ----------------------------
 
 WORKSPACE="$HOME/eclipse-workspace"
@@ -344,7 +332,12 @@ LDAP_DST="$WORKSPACE/.metadata/.plugins"
 LDAP_SRC="$REPO/apache-directory-studio"
 
 mkdir -p "$LDAP_DST"
-cp -R "$LDAP_SRC"/org.apache.directory.studio.* "$LDAP_DST"/ 2>/dev/null || true
+
+if [ -d "$LDAP_SRC" ]; then
+    cp -R "$LDAP_SRC"/org.apache.directory.studio.* "$LDAP_DST"/
+else
+    echo "⚠️ LDAP config not found in repo"
+fi
 
 # ----------------------------
 # vscode config
@@ -358,14 +351,22 @@ mkdir -p "$VSCODE_DIR"
 [ -f "$REPO/vscode/settings.json" ] && cp "$REPO/vscode/settings.json" "$VSCODE_DIR/"
 [ -f "$REPO/vscode/keybindings.json" ] && cp "$REPO/vscode/keybindings.json" "$VSCODE_DIR/"
 
-if command -v code >/dev/null 2>&1; then
-    [ -f "$REPO/vscode/extensions.txt" ] && cat "$REPO/vscode/extensions.txt" | xargs -L 1 code --install-extension
+CODE_BIN=""
+
+if [ -x "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ]; then
+    CODE_BIN="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+elif command -v code >/dev/null 2>&1; then
+    CODE_BIN="code"
+fi
+
+if [ -n "$CODE_BIN" ]; then
+    cat "$REPO/vscode/extensions.txt" | xargs -L 1 "$CODE_BIN" --install-extension
 else
     echo "VS Code CLI not available – skipping extension installation."
 fi
 
 # ----------------------------
-# Switch Git remote to SSH
+# Git remote
 # ----------------------------
 
 echo "Checking GitHub SSH access..."
@@ -412,7 +413,6 @@ tell application "System Events"
     end repeat
 end tell
 EOF
-
 else
     echo "Wallpaper not found: $WALLPAPER"
 fi
@@ -425,4 +425,5 @@ echo ""
 echo "Setup complete. Import README to Apple Notes..."
 echo ""
 
-open -a Notes "$REPO/README.md"
+sleep 2
+open -a Notes "$REPO/README.md" 2>/dev/null || true
