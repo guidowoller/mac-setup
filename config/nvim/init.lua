@@ -40,4 +40,6 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 })
 
 -- lualine
-require("lualine").setup()
+pcall(function()
+  require("lualine").setup()
+end)
