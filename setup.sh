@@ -226,7 +226,7 @@ case "$WG_ENV" in
     WG_FAITH_ITEM="WG-FAITH Neu Guido Mac Uni"
     ;;
   p|P)
-    WG_FIM_ITEM="WG-FIM5 Neu Guido MacPrivat"
+    WG_FIM_ITEM="WG-FIM5 Neu Guido Mac Privat"
     WG_FAITH_ITEM="WG-FAITH Neu Guido Mac Privat"
     ;;
   *)
