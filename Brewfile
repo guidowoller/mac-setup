@@ -1,6 +1,7 @@
 brew "bat"
 brew "eza"
 brew "fzf"
+brew "fd"
 brew "starship"
 brew "tldr"
 brew "tmux"
