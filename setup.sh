@@ -126,16 +126,25 @@ NVIM_DST="$HOME/.config/nvim"
 
 mkdir -p "$HOME/.config"
 
+# alte config entfernen (falls kein symlink)
 if [ -e "$NVIM_DST" ] && [ ! -L "$NVIM_DST" ]; then
     rm -rf "$NVIM_DST"
 fi
 
+# symlink setzen
 ln -sf "$NVIM_SRC" "$NVIM_DST"
 
-if command -v nvim >/dev/null 2>&1; then
-    echo "Installing Neovim plugins..."
-    nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+# sicherstellen dass keine alte init.vim Probleme macht
+if [ -f "$NVIM_DST/init.vim" ]; then
+    rm -f "$NVIM_DST/init.vim"
 fi
+
+# nvim smoke test (kein plugin system!)
+if command -v nvim >/dev/null 2>&1; then
+    echo "Checking Neovim..."
+    nvim --headless +qa 2>/dev/null || true
+fi
+
 
 # ----------------------------
 # iTerm2 profiles
