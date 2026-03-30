@@ -246,8 +246,12 @@ WG_DST="/opt/homebrew/etc/wireguard"
 
 sudo mkdir -p "$WG_DST"
 
+# Werte aus 1Password holen
 WG_FIM_KEY=$(op item get "$WG_FIM_ITEM" --fields private)
+WG_FIM_IP=$(op item get "$WG_FIM_ITEM" --fields address)
+
 WG_FAITH_KEY=$(op item get "$WG_FAITH_ITEM" --fields private)
+WG_FAITH_IP=$(op item get "$WG_FAITH_ITEM" --fields address)
 
 for f in "$WG_SRC"/*.conf; do
     [ -f "$f" ] || continue
@@ -255,14 +259,26 @@ for f in "$WG_SRC"/*.conf; do
     fname=$(basename "$f")
 
     case "$fname" in
-        wg-fim5.conf) KEY="$WG_FIM_KEY" ;;
-        wg-faith.conf) KEY="$WG_FAITH_KEY" ;;
-        *) KEY="" ;;
+        wg-fim5.conf)
+            KEY="$WG_FIM_KEY"
+            IP="$WG_FIM_IP"
+            ;;
+        wg-faith.conf)
+            KEY="$WG_FAITH_KEY"
+            IP="$WG_FAITH_IP"
+            ;;
+        *)
+            KEY=""
+            IP=""
+            ;;
     esac
 
-    if [ -n "$KEY" ]; then
-        sed "s|<ENTER_PRIVATE_KEY_HERE>|$KEY|" "$f" | sudo tee "$WG_DST/$fname" > /dev/null
+    if [ -n "$KEY" ] && [ -n "$IP" ]; then
+        sed -e "s|<ENTER_PRIVATE_KEY_HERE>|$KEY|" \
+            -e "s|<ENTER_IP_ADDRESS_HERE>|$IP|" \
+            "$f" | sudo tee "$WG_DST/$fname" > /dev/null
     else
+        echo "Skipping $fname (missing key or IP)"
         sudo cp "$f" "$WG_DST/$fname"
     fi
 
@@ -275,6 +291,7 @@ echo "Configuring sudo for WireGuard..."
 USER_NAME=$(whoami)
 SUDOERS_FILE="/etc/sudoers.d/wireguard"
 
+# nur schreiben wenn noch nicht vorhanden
 if ! sudo grep -q "wg-quick" "$SUDOERS_FILE" 2>/dev/null; then
     echo "$USER_NAME ALL=(ALL) NOPASSWD: /opt/homebrew/bin/wg-quick, /opt/homebrew/bin/wg" | \
     sudo tee "$SUDOERS_FILE" >/dev/null
