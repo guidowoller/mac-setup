@@ -213,11 +213,11 @@ read -rp "[u/p]: " WG_ENV
 
 case "$WG_ENV" in
   u|U)
-    WG_FIM_ITEM="WG-FIM-5 Neu Guido Mac Uni"
+    WG_FIM_ITEM="WG-FIM5 Neu Guido Mac Uni"
     WG_FAITH_ITEM="WG-FAITH Neu Guido Mac Uni"
     ;;
   p|P)
-    WG_FIM_ITEM="WG-FIM-5 Neu Guido-MacPrivat"
+    WG_FIM_ITEM="WG-FIM5 Neu Guido MacPrivat"
     WG_FAITH_ITEM="WG-FAITH Neu Guido Mac Privat"
     ;;
   *)
