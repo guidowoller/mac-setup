@@ -2,3 +2,6 @@
 	insteadOf = https://github.com/
 [core]
 	excludesfile = /Users/guido/.gitignore_global
+[user]
+	name = Guido Woller
+	email = guido.woller@icloud.com
