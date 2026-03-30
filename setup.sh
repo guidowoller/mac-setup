@@ -139,12 +139,30 @@ if [ -f "$NVIM_DST/init.vim" ]; then
     rm -f "$NVIM_DST/init.vim"
 fi
 
-# nvim smoke test (kein plugin system!)
-if command -v nvim >/dev/null 2>&1; then
-    echo "Checking Neovim..."
-    nvim --headless +qa 2>/dev/null || true
+# ----------------------------
+# lazy.nvim bootstrap
+# ----------------------------
+
+LAZY_DIR="$HOME/.local/share/nvim/lazy/lazy.nvim"
+
+if [ ! -d "$LAZY_DIR" ]; then
+    echo "Installing lazy.nvim..."
+    git clone --filter=blob:none https://github.com/folke/lazy.nvim.git "$LAZY_DIR"
 fi
 
+# ----------------------------
+# plugins installieren (silent)
+# ----------------------------
+
+if command -v nvim >/dev/null 2>&1; then
+    echo "Installing Neovim plugins..."
+
+    # Plugins installieren
+    nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+
+    # zweiter Run → stabilisiert Runtime
+    nvim --headless "+qa" 2>/dev/null || true
+fi
 
 # ----------------------------
 # iTerm2 profiles
