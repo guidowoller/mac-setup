@@ -117,6 +117,9 @@ alias sync-dotfiles="~/mac-setup/sync.sh && cd ~/mac-setup && git status"
 alias doctor="~/mac-setup/doctor.sh"
 alias update="~/mac-setup/update.sh"
 
+# nvim for vi
+alias vi="nvim"
+
 # ----------------------------
 # History
 # ----------------------------
