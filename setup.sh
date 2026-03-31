@@ -59,7 +59,7 @@ SCRIPT_DIR="$REPO/scripts"
 
 mkdir -p "$BIN_DIR"
 
-for f in "$SCRIPT_DIR"/*.sh; do
+for f in "$SCRIPT_DIR"/*.{sh,scpt}; do
     [ -f "$f" ] || continue
 
     name=$(basename "$f")
