@@ -49,7 +49,7 @@ ln -sf "$REPO/dotfiles/.gitconfig" "$HOME/.gitconfig"
 ln -sf "$REPO/dotfiles/.tmux.conf" "$HOME/.tmux.conf"
 
 # ----------------------------
-# scripts
+# scripts (symlinks, robust)
 # ----------------------------
 
 echo "Installing scripts (symlinks)..."
@@ -59,19 +59,40 @@ SCRIPT_DIR="$REPO/scripts"
 
 mkdir -p "$BIN_DIR"
 
-for f in "$SCRIPT_DIR"/*.{sh,scpt}; do
-    [ -f "$f" ] || continue
+# wichtig: verhindert Probleme bei leeren Matches
+shopt -s nullglob
 
-    name=$(basename "$f")
-    target="$BIN_DIR/$name"
+SCRIPT_FILES=("$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.scpt)
 
-    if [ -e "$target" ] && [ ! -L "$target" ]; then
-        rm -f "$target"
-    fi
+if [ ${#SCRIPT_FILES[@]} -eq 0 ]; then
+    echo "No scripts found in $SCRIPT_DIR"
+else
+    for f in "${SCRIPT_FILES[@]}"; do
+        if [ ! -f "$f" ]; then
+            continue
+        fi
 
-    ln -sf "$f" "$target"
-    chmod +x "$f"
-done
+        name=$(basename "$f")
+        target="$BIN_DIR/$name"
+
+        echo "→ linking $name"
+
+        # existiert und ist KEIN symlink → löschen
+        if [ -e "$target" ] && [ ! -L "$target" ]; then
+            echo "  removing existing file"
+            rm -f "$target"
+        fi
+
+        # symlink setzen (immer überschreiben)
+        ln -sf "$f" "$target"
+
+        # ausführbar machen (falls sinnvoll)
+        chmod +x "$f" 2>/dev/null || true
+    done
+fi
+
+# optional: zurücksetzen (sauberkeit)
+shopt -u nullglob
 
 # ----------------------------
 # ms365 sync (LaunchAgent)
