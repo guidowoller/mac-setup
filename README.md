@@ -1,5 +1,7 @@
 # mac-setup
 
+## ********** Scroll Down for Post-SETUP Instructions *********
+
 Personal macOS bootstrap setup.
 
 This repository contains everything required to set up a new Mac quickly:
@@ -75,9 +77,19 @@ mac-setup/
 
 
 
-# mac-setup
+
 
 ## 🚀 Post-Setup Checklist
+
+### ⚙️ macOS Einstellungen
+- [ ] Festplattenvollzugriff aktivieren:
+        - System Settings → Privacy & Security → Full Disk Access
+        - iTerm hinzufügen
+- [ ] Spotlight Search anpassen
+
+### Internet Accounts hinzufügen
+- [ ] google (mail, contacts, calender)
+- [ ] BDV (calendar)
 
 ### 🔐 Einloggen
 - [ ] Google Chrome
@@ -85,31 +97,17 @@ mac-setup/
 - [ ] Microsoft Edge
 - [ ] ChatGPT
 - [ ] Mattermost
-- [ ] Mail (Google Konto)
 - [ ] WhatsApp
-
----
 
 ### 📦 Installieren
 - [ ] LRZ Sync and Share  
-  https://syncandshare.lrz.de/download_client
+        https://syncandshare.lrz.de/download_client
 
----
-
-### 🔑 Passwort speichern
-- [ ] Apache Directory Studio (Eclipse)
-  - [ ] Verbindung öffnen
-  - [ ] Passwort eingeben
-  - [ ] Passwort speichern
-
----
-
-### ⚙️ macOS Einstellungen
-- [ ] Festplattenvollzugriff aktivieren:
-  - System Settings → Privacy & Security → Full Disk Access
-  - iTerm hinzufügen
-
----
+### 🔑 Programme konfigurieren
+- [ ] Apache Directory Studio (Eclipse): Verbindung - Passwort
+- [ ] WinwosApp: winadmin Verbindung einlesen von icloud
+- [ ] Kalender: Kalender konfigurieren
+- [ ] Keepassxc: Dummy (inkl. keyx) einrichten
 
 ## 🛠 DevOps Bootstrap Commands
 
