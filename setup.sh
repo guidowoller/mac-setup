@@ -12,7 +12,7 @@ echo "Running mac setup..."
 
 if command -v brew >/dev/null 2>&1; then
     echo "Installing Homebrew packages..."
-    brew update
+    brew update || true
     brew bundle --file "$REPO/Brewfile"
 else
     echo "Homebrew not installed. Please run bootstrap.sh first."
@@ -95,6 +95,37 @@ fi
 shopt -u nullglob
 
 # ----------------------------
+# 1Password SSH agent setup
+# ----------------------------
+
+open -a "1Password"
+
+echo ""
+echo "--------------------------------------------------"
+echo "Manual step required"
+echo ""
+echo "Please open 1Password now and enable:"
+echo ""
+echo "1Password → Settings → Developer → Use SSH Agent"
+echo ""
+echo "After enabling it, press ENTER to continue..."
+echo "--------------------------------------------------"
+echo ""
+
+read -r
+
+# ----------------------------
+# 1Password SSH agent config
+# ----------------------------
+
+echo "Installing 1Password SSH agent configuration..."
+
+OP_DIR="$HOME/.config/1password/ssh"
+mkdir -p "$OP_DIR"
+
+cp "$REPO/1password/agent.toml" "$OP_DIR/agent.toml" 2>/dev/null || true
+
+# ----------------------------
 # ms365 sync (LaunchAgent)
 # ----------------------------
 
@@ -168,7 +199,7 @@ LAZY_DIR="$HOME/.local/share/nvim/lazy/lazy.nvim"
 
 if [ ! -d "$LAZY_DIR" ]; then
     echo "Installing lazy.nvim..."
-    git clone --filter=blob:none https://github.com/folke/lazy.nvim.git "$LAZY_DIR"
+    git clone --filter=blob:none https://github.com/folke/lazy.nvim.git "$LAZY_DIR" 2>/dev/null || true
 fi
 
 # ----------------------------
@@ -200,36 +231,6 @@ fi
 
 killall iTerm2 2>/dev/null || true
 
-# ----------------------------
-# 1Password SSH agent setup
-# ----------------------------
-
-open -a "1Password"
-
-echo ""
-echo "--------------------------------------------------"
-echo "Manual step required"
-echo ""
-echo "Please open 1Password now and enable:"
-echo ""
-echo "1Password → Settings → Developer → Use SSH Agent"
-echo ""
-echo "After enabling it, press ENTER to continue..."
-echo "--------------------------------------------------"
-echo ""
-
-read -r
-
-# ----------------------------
-# 1Password SSH agent config
-# ----------------------------
-
-echo "Installing 1Password SSH agent configuration..."
-
-OP_DIR="$HOME/.config/1password/ssh"
-mkdir -p "$OP_DIR"
-
-cp "$REPO/1password/agent.toml" "$OP_DIR/agent.toml" 2>/dev/null || true
 
 # ----------------------------
 # ssh config
@@ -286,11 +287,10 @@ WG_DST="/opt/homebrew/etc/wireguard"
 sudo mkdir -p "$WG_DST"
 
 # Werte aus 1Password holen
-WG_FIM_KEY=$(op item get "$WG_FIM_ITEM" --fields private)
-WG_FIM_IP=$(op item get "$WG_FIM_ITEM" --fields address)
-
-WG_FAITH_KEY=$(op item get "$WG_FAITH_ITEM" --fields private)
-WG_FAITH_IP=$(op item get "$WG_FAITH_ITEM" --fields address)
+WG_FIM_KEY=$(op item get "$WG_FIM_ITEM" --fields private 2>/dev/null || true)
+WG_FIM_IP=$(op item get "$WG_FIM_ITEM" --fields address 2>/dev/null || true)
+WG_FAITH_KEY=$(op item get "$WG_FAITH_ITEM" --fields private 2>/dev/null || true)
+WG_FAITH_IP=$(op item get "$WG_FAITH_ITEM" --fields address 2>/dev/null || true)
 
 for f in "$WG_SRC"/*.conf; do
     [ -f "$f" ] || continue
@@ -425,7 +425,7 @@ elif command -v code >/dev/null 2>&1; then
 fi
 
 if [ -n "$CODE_BIN" ]; then
-    cat "$REPO/vscode/extensions.txt" | xargs -L 1 "$CODE_BIN" --install-extension
+	[ -f "$REPO/vscode/extensions.txt" ] && xargs -L 1 "$CODE_BIN" --install-extension < "$REPO/vscode/extensions.txt"
 else
     echo "VS Code CLI not available – skipping extension installation."
 fi
