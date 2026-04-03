@@ -120,6 +120,9 @@ alias update="~/mac-setup/update.sh"
 # nvim for vi
 alias vi="nvim"
 
+# ms365 sync script
+alias ms365="ms365.sh"
+
 # ----------------------------
 # History
 # ----------------------------
