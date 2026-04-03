@@ -16,6 +16,15 @@ on isoTimestamp()
 	return do shell script "date +%Y-%m-%dT%H:%M:%S%z"
 end isoTimestamp
 
+on findInIndex(theIndex, theUID)
+    repeat with itemRec in theIndex
+		if (my normalizeUID(uid of itemRec)) = (my normalizeUID(theUID)) then
+    		return ev of itemRec
+		end if
+    end repeat
+    return missing value
+end findInIndex
+
 on ensureCalendarReady()
 	try
 		tell application id "com.apple.iCal" to launch
@@ -51,6 +60,17 @@ on run
 			if destCal is missing value then error my notFoundMessage(DEST_CALENDAR_NAME)
 
 			set srcEvents to (every event of sourceCal whose start date ≥ fromDate and start date ≤ toDate)
+			-- INDEX für Ziel-Events (einmalig)
+			set destIndex to {}
+			set destEvents to (every event of destCal whose description contains SYNC_PREFIX)
+			
+			repeat with d in destEvents
+			    set dDesc to my safeText(description of d)
+			    set duid to my normalizeUID(my extractUID(dDesc))
+			    if duid is not "" then
+			        set end of destIndex to {uid:duid, ev:d}
+			    end if
+			end repeat
 
 			set srcUIDs to {}
 			repeat with e in srcEvents
@@ -58,7 +78,7 @@ on run
 			end repeat
 
 			repeat with e in srcEvents
-				my upsertMirrorStrictV3(e, destCal)
+				my upsertMirrorStrictV3(e, destCal, destIndex)
 			end repeat
 
 			set destCandidates to (every event of destCal whose description contains SYNC_PREFIX and start date ≥ (fromDate - (90 * days)) and start date ≤ (toDate + (90 * days)))
@@ -80,7 +100,22 @@ on run
 	end try
 end run
 
-on upsertMirrorStrictV3(srcEvent, destCal)
+on normalizeUID(t)
+    if t is missing value then return ""
+    set t to t as text
+
+    repeat while t begins with " " or t begins with return or t begins with linefeed
+        set t to text 2 through -1 of t
+    end repeat
+
+    repeat while t ends with " " or t ends with return or t ends with linefeed
+        set t to text 1 through -2 of t
+    end repeat
+
+    return t
+end normalizeUID
+
+on upsertMirrorStrictV3(srcEvent, destCal, destIndex)
 	tell application id "com.apple.iCal"
 		set srcUID to (uid of srcEvent) as text
 		set marker to (SYNC_PREFIX & srcUID & SYNC_SUFFIX)
@@ -91,6 +126,15 @@ on upsertMirrorStrictV3(srcEvent, destCal)
 		set sDesc to my safeText(description of srcEvent)
 		set sLoc to my safeText(location of srcEvent)
 		set sAllDay to (allday event of srcEvent)
+
+		-- FIX: invalid end date handling
+		if sEnd ≤ sStart then
+		    if sAllDay then
+		        set sEnd to sStart + (1 * days)
+		    else
+		        set sEnd to sStart + (1 * minutes)
+		    end if
+		end if
 
 		set finalDesc to sDesc
 		if finalDesc is "" then
@@ -104,30 +148,32 @@ on upsertMirrorStrictV3(srcEvent, destCal)
 			set finalDesc to finalDesc & return & marker
 		end if
 
-		set found to {}
+		set newEvent to missing value
+
+		-- 1. schneller Index lookup
 		try
-			set found to (every event of destCal whose description contains marker)
+		    set newEvent to my findInIndex(destIndex, my normalizeUID(srcUID))
 		end try
-
-		if (count of found) is 0 and (sAllDay is false) then
-			set found to (every event of destCal whose summary is sTitle and start date is sStart and end date is sEnd)
+		
+		-- 2. Fallback: falls nicht gefunden → direkter Marker Check
+		if newEvent is missing value then
+		    try
+		        set found to (every event of destCal whose description contains marker)
+		        if (count of found) > 0 then
+		            set newEvent to item 1 of found
+		        end if
+		    end try
 		end if
 
-		if (count of found) is 0 and (sAllDay is true) then
-			set found to (every event of destCal whose summary is sTitle and start date is sStart and allday event is true)
-		end if
-
-		if (count of found) is 0 then
+		if newEvent is missing value then
 			set newEvent to make new event at end of destCal with properties {summary:sTitle, start date:sStart, end date:sEnd, description:finalDesc, location:sLoc}
 			set allday event of newEvent to sAllDay
 		else
-			set newEvent to item 1 of found
-			set summary of newEvent to sTitle
-			set start date of newEvent to sStart
-			set end date of newEvent to sEnd
-			set allday event of newEvent to sAllDay
-			set location of newEvent to sLoc
-			set description of newEvent to finalDesc
+			if summary of newEvent is not sTitle then set summary of newEvent to sTitle
+			if start date of newEvent is not sStart then set start date of newEvent to sStart
+			if end date of newEvent is not sEnd then set end date of newEvent to sEnd
+			if location of newEvent is not sLoc then set location of newEvent to sLoc
+			if description of newEvent is not finalDesc then set description of newEvent to finalDesc
 		end if
 
 		try
