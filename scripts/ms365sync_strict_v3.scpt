@@ -81,15 +81,23 @@ on run
 				my upsertMirrorStrictV3(e, destCal, destIndex)
 			end repeat
 
-			set destCandidates to (every event of destCal whose description contains SYNC_PREFIX and start date ≥ (fromDate - (90 * days)) and start date ≤ (toDate + (90 * days)))
-			repeat with d in destCandidates
-				set dDesc to my safeText(description of d)
-				set duid to my extractUID(dDesc)
-				if duid is not "" then
-					if (my listContains(srcUIDs, duid)) is false then
-						delete d
-					end if
-				end if
+--			set destCandidates to (every event of destCal whose description contains SYNC_PREFIX and start date ≥ (fromDate - (90 * days)) and start date ≤ (toDate + (90 * days)))
+--			repeat with d in destCandidates
+--				set dDesc to my safeText(description of d)
+--				set duid to my extractUID(dDesc)
+--				if duid is not "" then
+--					if (my listContains(srcUIDs, duid)) is false then
+--						delete d
+--					end if
+--				end if
+--			end repeat
+			repeat with itemRec in destIndex
+			    set d to ev of itemRec
+			    set duid to uid of itemRec
+			
+			    if (my listContains(srcUIDs, duid)) is false then
+			        delete d
+			    end if
 			end repeat
 		end tell
 
@@ -156,29 +164,27 @@ on upsertMirrorStrictV3(srcEvent, destCal, destIndex)
 		end try
 		
 		-- 2. Fallback: falls nicht gefunden → direkter Marker Check
-		if newEvent is missing value then
-		    try
-		        set found to (every event of destCal whose description contains marker)
-		        if (count of found) > 0 then
-		            set newEvent to item 1 of found
-		        end if
-		    end try
-		end if
+--		if newEvent is missing value then
+--		    try
+--		        set found to (every event of destCal whose description contains marker)
+--		        if (count of found) > 0 then
+--		            set newEvent to item 1 of found
+--		        end if
+--		    end try
+--		end if
 
 		if newEvent is missing value then
 			set newEvent to make new event at end of destCal with properties {summary:sTitle, start date:sStart, end date:sEnd, description:finalDesc, location:sLoc}
 			set allday event of newEvent to sAllDay
 		else
-			if summary of newEvent is not sTitle then set summary of newEvent to sTitle
-			if start date of newEvent is not sStart then set start date of newEvent to sStart
-			if end date of newEvent is not sEnd then set end date of newEvent to sEnd
-			if location of newEvent is not sLoc then set location of newEvent to sLoc
-			if description of newEvent is not finalDesc then set description of newEvent to finalDesc
+		set properties of newEvent to {summary:sTitle, start date:sStart, end date:sEnd, location:sLoc, description:finalDesc}
+    		set allday event of newEvent to sAllDay
 		end if
 
-		try
-			set attendees of newEvent to {}
-		end try
+-- attendees handling removed for performance
+--		try
+--			set attendees of newEvent to {}
+--		end try
 	end tell
 end upsertMirrorStrictV3
 
