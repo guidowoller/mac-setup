@@ -16,11 +16,11 @@ on isoTimestamp()
 	return do shell script "date +%Y-%m-%dT%H:%M:%S%z"
 end isoTimestamp
 
-on findInIndex(theIndex, theUID)
+on findInIndex(theIndex, marker)
     repeat with itemRec in theIndex
-		if (my normalizeUID(uid of itemRec)) = (my normalizeUID(theUID)) then
-    		return ev of itemRec
-		end if
+        if (desc of itemRec) contains marker then
+            return ev of itemRec
+        end if
     end repeat
     return missing value
 end findInIndex
@@ -65,11 +65,10 @@ on run
 			set destEvents to (every event of destCal whose description contains SYNC_PREFIX)
 			
 			repeat with d in destEvents
-			    set dDesc to my safeText(description of d)
-			    set duid to my normalizeUID(my extractUID(dDesc))
-			    if duid is not "" then
-			        set end of destIndex to {uid:duid, ev:d}
-			    end if
+				set dDesc to my safeText(description of d)
+				if dDesc contains SYNC_PREFIX then
+				    set end of destIndex to {desc:dDesc, ev:d}
+				end if
 			end repeat
 
 			set srcUIDs to {}
@@ -93,8 +92,7 @@ on run
 --			end repeat
 			repeat with itemRec in destIndex
 			    set d to ev of itemRec
-			    set duid to uid of itemRec
-			
+			    set duid to my extractUID(desc of itemRec)	
 			    if (my listContains(srcUIDs, duid)) is false then
 			        delete d
 			    end if
@@ -112,13 +110,19 @@ on normalizeUID(t)
     if t is missing value then return ""
     set t to t as text
 
-    repeat while t begins with " " or t begins with return or t begins with linefeed
+    -- trim whitespace + control chars
+    repeat while t begins with " " or t begins with return or t begins with linefeed or t begins with tab
         set t to text 2 through -1 of t
     end repeat
 
-    repeat while t ends with " " or t ends with return or t ends with linefeed
+    repeat while t ends with " " or t ends with return or t ends with linefeed or t ends with tab
         set t to text 1 through -2 of t
     end repeat
+
+    -- 🔥 NEU: remove invisible unicode crap (wichtig!)
+    try
+        set t to do shell script "printf %s " & quoted form of t & " | tr -d '\\r\\n\\t'"
+    end try
 
     return t
 end normalizeUID
@@ -160,7 +164,7 @@ on upsertMirrorStrictV3(srcEvent, destCal, destIndex)
 
 		-- 1. schneller Index lookup
 		try
-		    set newEvent to my findInIndex(destIndex, my normalizeUID(srcUID))
+		    set newEvent to my findInIndex(destIndex, marker)
 		end try
 		
 		-- 2. Fallback: falls nicht gefunden → direkter Marker Check
