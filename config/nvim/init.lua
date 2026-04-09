@@ -17,6 +17,8 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   { "morhetz/gruvbox" },
   { "nvim-lualine/lualine.nvim" },
+    -- AppleScript Syntax
+  { "vim-scripts/applescript.vim" },
 })
 
 -- colorscheme
@@ -26,6 +28,8 @@ vim.cmd("colorscheme gruvbox")
 -- line numbers
 vim.o.number = true
 vim.o.relativenumber = true
+vim.opt.wrap = false
+
 
 vim.api.nvim_create_autocmd("InsertEnter", {
   callback = function()
