@@ -5,3 +5,4 @@ export PATH="$HOME/bin:$PATH"
 if [[ -o interactive && "$TERM_PROGRAM" == "iTerm.app" ]]; then
   [ -f "$HOME/.zshrc.iterm" ] && source "$HOME/.zshrc.iterm"
 fi
+export PATH="$HOME/.local/bin:$PATH"
