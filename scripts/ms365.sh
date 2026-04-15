@@ -3,7 +3,7 @@
 set -e
 
 PLIST="$HOME/Library/LaunchAgents/com.guido.ms365sync.plist"
-SCRIPT="$HOME/bin/ms365sync_strict_v3.scpt"
+SCRIPT="$HOME/bin/ms365sync.scpt"
 LOG_OUT="$HOME/Library/Logs/ms365sync.out.log"
 LOG_ERR="$HOME/Library/Logs/ms365sync.err.log"
 INTERVAL_DEFAULT=3600

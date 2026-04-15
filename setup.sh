@@ -139,7 +139,7 @@ PLIST_DST="$LAUNCHAGENT_DIR/$PLIST_NAME"
 mkdir -p "$LAUNCHAGENT_DIR"
 mkdir -p "$HOME/Library/Logs"
 
-chmod +x "$REPO/scripts/ms365sync_strict_v3.scpt"
+chmod +x "$REPO/scripts/ms365sync.scpt"
 
 TMP_PLIST=$(mktemp)
 sed "s|\$HOME|$HOME|g" "$PLIST_SRC" > "$TMP_PLIST"
