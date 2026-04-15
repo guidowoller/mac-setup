@@ -1,116 +1,156 @@
 # mac-setup
 
-## ********** Scroll Down for Post-SETUP Instructions *********
-
 Personal macOS bootstrap setup.
 
-This repository contains everything required to set up a new Mac quickly:
+This repository contains everything required to set up a new Mac quickly and reproducibly:
 
-* Homebrew packages
-* shell configuration
-* tmux / vim configuration
-* scripts
-* SSH configuration
-* WireGuard templates
-* VS Code settings and extensions
-* macOS preference restore
+- Homebrew packages
+- shell configuration
+- tmux / vim / nvim configuration
+- scripts (mode, vpn, ms365)
+- SSH configuration
+- WireGuard templates
+- VS Code settings and extensions
+- macOS preference restore
+- Apache Directory Studio configuration
 
 ---
 
-## Bootstrap a new Mac
+## 🚀 Bootstrap a new Mac
 
 Run the bootstrap script:
 
-curl -fsSL https://raw.githubusercontent.com/guidowoller/mac-setup/main/bootstrap.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/guidowoller/mac-setup/main/bootstrap.sh | bash
 
-The script will:
+This will:
 
-1. Install Xcode Command Line Tools
-2. Install Homebrew
-3. Clone this repository
-4. Run setup.sh
-5. Install all tools and configuration
-
----
-
-## WireGuard
-
-WireGuard configuration files are stored as templates.
-
-After setup you must insert your private keys manually.
-
-Edit:
-
-/opt/homebrew/etc/wireguard/*.conf
-
-Private keys are stored in 1Password.
+1. Install Xcode Command Line Tools  
+2. Install Homebrew  
+3. Clone this repository  
+4. Run `setup.sh`  
+5. Install all tools and configuration  
 
 ---
 
-## Updating configuration
+## ⚙️ What setup.sh does
 
-If you modify your local configuration:
+The setup script performs the following tasks:
 
-sync-dotfiles
-
-Then commit the changes:
-
-git add .
-git commit -m "update config"
-git push
+- installs all Homebrew packages
+- applies dotfiles (zsh, git, tmux, etc.)
+- installs and links scripts to `~/bin`
+- configures 1Password SSH agent
+- installs and configures WireGuard
+- sets up VS Code, Neovim and iTerm2
+- restores macOS preferences
+- restores Apache Directory Studio (LDAP) configuration
+- installs ms365 sync LaunchAgent
 
 ---
 
-## Repository structure
+## ⚠️ Interactive steps during setup
 
-mac-setup/
-├── Brewfile
-├── bootstrap.sh
-├── setup.sh
-├── sync.sh
-├── dotfiles
-├── scripts
-├── ssh
-├── wireguard
-├── vscode
-└── macos
+During execution, manual interaction is required:
 
+### 1Password
+- Enable:  
+  `1Password → Settings → Developer → Use SSH Agent`
+- Press ENTER to continue
 
+### WireGuard
+- Choose environment:
+  - `u` = university
+  - `p` = private
 
+### Eclipse / Apache Directory Studio
+- Install plugin:
+  - Help → Install New Software  
+  - https://directory.apache.org/studio/update/  
+  - Install: LDAP Browser
+- Press ENTER after completion
 
+---
 
-## 🚀 Post-Setup Checklist
+## 🧠 Available Commands
 
-### ⚙️ macOS Einstellungen
-- [ ] Festplattenvollzugriff aktivieren:
-        - System Settings → Privacy & Security → Full Disk Access
-        - iTerm hinzufügen
-- [ ] Spotlight Search anpassen
+### Mode (environment control)
 
-### Internet Accounts hinzufügen
-- [ ] google (mail, contacts, calender)
-- [ ] BDV (calendar)
+    mode arbeit
+    mode freizeit
+    mode alles
+    mode ich
+    mode status
 
-### 🔐 Einloggen
-- [ ] Google Chrome
-- [ ] Firefox
-- [ ] Microsoft Edge
-- [ ] ChatGPT
-- [ ] Mattermost
-- [ ] WhatsApp
+Controls:
+- macOS Focus mode
+- wallpaper
+- running applications
+- VPN state
 
-### 📦 Installieren
-- [ ] LRZ Sync and Share  
-        https://syncandshare.lrz.de/download_client
+---
 
-### 🔑 Programme konfigurieren
-- [ ] Apache Directory Studio (Eclipse): Verbindung - Passwort
-- [ ] WinwosApp: winadmin Verbindung einlesen von icloud
-- [ ] Kalender: Kalender konfigurieren
-- [ ] Keepassxc: Dummy (inkl. keyx) einrichten
+### VPN (WireGuard)
 
-## 🛠 DevOps Bootstrap Commands
+    vpn start
+    vpn stop
+    vpn status
 
-### 🔄 Update System
-```bash
-update.sh
+---
+
+### MS365 Sync
+
+    ms365.sh run
+
+---
+
+## 🔐 WireGuard
+
+WireGuard configs are generated during setup.
+
+Private keys and IPs are automatically pulled from 1Password.
+
+Configs are stored in:
+
+    /opt/homebrew/etc/wireguard/
+
+---
+
+## 🔄 Updating configuration
+
+To sync local changes back into the repository:
+
+    sync.sh
+
+Then commit:
+
+    git add .
+    git commit -m "update config"
+    git push
+
+---
+
+## 📁 Repository structure
+
+    mac-setup/
+    ├── Brewfile
+    ├── bootstrap.sh
+    ├── setup.sh
+    ├── scripts
+    ├── dotfiles
+    ├── config
+    ├── launchagents
+    ├── wireguard
+    ├── apache-directory-studio
+    ├── vscode
+    ├── macos
+    └── ssh
+
+---
+
+## 📋 Post-Install Checklist
+
+See:
+
+    POST-INSTALL.md
+
+This file is intended as a temporary checklist and can be deleted after setup is complete.

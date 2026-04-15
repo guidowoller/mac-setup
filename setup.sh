@@ -492,3 +492,5 @@ echo ""
 
 sleep 2
 open -a Notes "$REPO/README.md" 2>/dev/null || true
+sleep 5
+open -a Notes "$REPO/POST-INSTALL.md" 2>/dev/null || true
