@@ -123,6 +123,10 @@ alias vi="nvim"
 # ms365 sync script
 alias ms365="ms365.sh"
 
+#script aliase
+alias vpn="~/mac-setup/scripts/vpn.sh"
+alias mode="~/mac-setup/scripts/mode.sh"
+
 # ----------------------------
 # History
 # ----------------------------
