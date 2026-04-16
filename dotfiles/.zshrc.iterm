@@ -107,10 +107,8 @@ alias myip="curl ifconfig.me"
 command -v bat >/dev/null && alias cat="bat"
 
 # Work helpers
-alias wguni="$HOME/bin/wg-uni.sh"
-alias wgdown="$HOME/bin/wg-uni-down.sh"
-alias uni="$HOME/bin/uni.sh"
 alias a="$HOME/bin/a.sh"
+alias closeall="$HOME/bin/close-all-apps.sh"
 
 # mac-setup helpers
 alias sync-dotfiles="~/mac-setup/sync.sh && cd ~/mac-setup && git status"
