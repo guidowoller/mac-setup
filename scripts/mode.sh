@@ -91,6 +91,7 @@ arbeit)
     start_app "Mattermost" min
     start_app "Mail" min
     start_app "Windows App" min
+    start_app "LRZ Sync+Share"
     start_app "Firefox"
 
     # VPN
@@ -109,6 +110,7 @@ freizeit)
     stop_app "Firefox"
     stop_app "Mattermost"
     stop_app "Windows App"
+    stop_app "LRZ Sync+Share"
 
     # start leisure apps
     start_app "WhatsApp" min
@@ -133,6 +135,7 @@ alles)
     start_app "Windows App" min
     start_app "WhatsApp" min 
     start_app "Firefox" min
+    start_app "LRZ Sync+Share"
     start_app "Microsoft Edge" min
 
     # VPN
@@ -154,6 +157,7 @@ ich)
     stop_app "Windows App"
     stop_app "Microsoft Edge"
     stop_app "WhatsApp"
+    stop_app "LRZ Sync+Share"
     stop_app "iTerm2"
     stop_app "Terminal"
 
