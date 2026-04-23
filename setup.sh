@@ -145,7 +145,7 @@ TMP_PLIST=$(mktemp)
 sed "s|\$HOME|$HOME|g" "$PLIST_SRC" > "$TMP_PLIST"
 
 launchctl bootout gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
-ln -sf "$TMP_PLIST" "$PLIST_DST"
+cp "$TMP_PLIST" "$PLIST_DST"
 launchctl bootstrap gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
 
 echo "ms365 sync ready."
