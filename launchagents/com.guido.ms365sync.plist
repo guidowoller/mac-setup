@@ -28,5 +28,8 @@
   <key>LimitLoadToSessionType</key>
   <string>Aqua</string>
 
+  <key>ProcessType</key>
+  <string>Interactive</string>
+
 </dict>
 </plist>

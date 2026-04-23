@@ -17,6 +17,8 @@ alias gd="git diff"
 # Navigation
 alias ..="cd .."
 alias ...="cd ../.."
+alias l="ls -l"
+alias ll="ls -al"
 
 # Utilities
 alias cls="clear"

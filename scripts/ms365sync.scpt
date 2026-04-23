@@ -45,6 +45,8 @@ on ensureCalendarReady()
 end ensureCalendarReady
 
 on run
+
+	set startDate to (current date)
 	try
 		set nowDate to (current date)
 		set fromDate to nowDate - (DAYS_BEHIND * days)
@@ -99,7 +101,14 @@ on run
 			end repeat
 		end tell
 
-		return my isoTimestamp() & " ms365sync: OK (strict v3)"
+		set endDate to (current date)
+		set durationSec to (endDate - startDate)
+		
+		if durationSec > 30 then
+		    return my isoTimestamp() & " ms365sync: WARN (" & durationSec & "s)"
+		else
+		    return my isoTimestamp() & " ms365sync: OK (" & durationSec & "s)"
+		end if
 
 	on error errMsg number errNum
 		return my isoTimestamp() & " ms365sync: ERROR " & errNum & " — " & errMsg
