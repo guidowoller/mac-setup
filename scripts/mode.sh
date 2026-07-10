@@ -85,6 +85,7 @@ arbeit)
 
     # stop leisure apps
     stop_app "Microsoft Edge"
+    stop_app "Vivaldi"
     stop_app "WhatsApp"
 
     # start work apps
@@ -116,6 +117,7 @@ freizeit)
     start_app "WhatsApp" min
     start_app "Mail" min
     start_app "Microsoft Edge"
+    start_app "Vivaldi" min
 
     # VPN
     ~/mac-setup/scripts/vpn.sh stop
@@ -137,6 +139,7 @@ alles)
     start_app "Firefox" min
     start_app "LRZ Sync+Share"
     start_app "Microsoft Edge" min
+    start_app "Vivaldi" min
 
     # VPN
     ~/mac-setup/scripts/vpn.sh start
@@ -153,13 +156,11 @@ ich)
     # kill everything relevant
     stop_app "Firefox"
     stop_app "Mattermost"
-    stop_app "Mail"
     stop_app "Windows App"
     stop_app "Microsoft Edge"
+    stop_app "Vivaldi"
     stop_app "WhatsApp"
     stop_app "LRZ Sync+Share"
-    stop_app "iTerm2"
-    stop_app "Terminal"
 
     # VPN
     ~/mac-setup/scripts/vpn.sh stop
