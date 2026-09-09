@@ -77,7 +77,7 @@ set_focus() {
 case "$MODE" in
 
 # ----------------------------
-arbeit)
+arbeit|u)
     echo "Mode: Arbeit"
 
     set_focus "Arbeit"
@@ -101,7 +101,7 @@ arbeit)
     ;;
 
 # ----------------------------
-freizeit)
+freizeit|f|d)
     echo "Mode: Freizeit"
 
     set_focus "Freizeit"
@@ -112,6 +112,7 @@ freizeit)
     stop_app "Mattermost"
     stop_app "Windows App"
     stop_app "LRZ Sync+Share"
+    stop_app "Elipse Java"
 
     # start leisure apps
     start_app "WhatsApp" min
@@ -125,7 +126,7 @@ freizeit)
     ;;
 
 # ----------------------------
-alles)
+alles|a)
     echo "Mode: Alles erlaubt"
 
     set_focus "Alles erlaubt"
@@ -147,7 +148,7 @@ alles)
     ;;
 
 # ----------------------------
-ich)
+ich|i)
     echo "Mode: Zeit für mich"
 
     set_focus "Zeit für mich"
@@ -161,6 +162,7 @@ ich)
     stop_app "Vivaldi"
     stop_app "WhatsApp"
     stop_app "LRZ Sync+Share"
+    stop_app "Elipse Java"
 
     # VPN
     ~/mac-setup/scripts/vpn.sh stop
@@ -169,7 +171,7 @@ ich)
 
 # ----------------------------
 
-status)
+status|s)
     echo "Mode status:"
     echo ""
 
@@ -195,7 +197,7 @@ status)
     ;;
 
 *)
-    echo "Usage: mode {arbeit|freizeit|alles|ich|status}"
+	echo "Usage: mode {arbeit(u)|freizeit(f|d)|alles(a)|ich(i)|status(s)}"
     exit 1
     ;;
 
