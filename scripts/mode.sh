@@ -112,7 +112,7 @@ freizeit|f|d)
     stop_app "Mattermost"
     stop_app "Windows App"
     stop_app "LRZ Sync+Share"
-    stop_app "Elipse Java"
+    stop_app "Eclipse"
 
     # start leisure apps
     start_app "WhatsApp" min
@@ -162,7 +162,7 @@ ich|i)
     stop_app "Vivaldi"
     stop_app "WhatsApp"
     stop_app "LRZ Sync+Share"
-    stop_app "Elipse Java"
+    stop_app "Eclipse"
 
     # VPN
     ~/mac-setup/scripts/vpn.sh stop
