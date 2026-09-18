@@ -1,2 +1,43 @@
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+*.out
+*.err
+
+# Secrets & Keys (should never be committed)
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+id_ecdsa
+
+# WireGuard: only templates with placeholders belong in git.
+# Real configs (with private keys and IPs) live in /opt/homebrew/etc/wireguard/
+# and are populated from 1Password at setup time. sync.sh strips sensitive
+# values before writing back — but as an extra safeguard, add the real
+# install location to your global gitignore.
+
+# Editor / IDE
+.vscode/
+*.swp
+*.swo
+*~
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
+
+# Temporary
+*.tmp
+*.bak
