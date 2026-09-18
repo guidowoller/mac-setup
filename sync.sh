@@ -38,6 +38,11 @@ mkdir -p $REPO/1password
 # starship config
 # ----------------------------
 
+STARSHIP_SRC="$HOME/.config/starship.toml"
+STARSHIP_DST="$REPO/config/starship.toml"
+
+[ -f "$STARSHIP_SRC" ] && cp "$STARSHIP_SRC" "$STARSHIP_DST"
+
 # ----------------------------
 # vscode settings
 # ----------------------------
@@ -98,8 +103,9 @@ for f in "$WG_SRC"/*.conf; do
 [ -f "$f" ] || continue
 fname=$(basename "$f")
 
-sed 's/^PrivateKey.*/PrivateKey = <ENTER_PRIVATE_KEY_HERE>/' "$f" \
-    > "$WG_DST/$fname"
+sed -e 's/^PrivateKey.*/PrivateKey = <ENTER_PRIVATE_KEY_HERE>/' \
+    -e 's/^Address.*/Address = <ENTER_IP_ADDRESS_HERE>/' \
+    "$f" > "$WG_DST/$fname"
 
 done
 
