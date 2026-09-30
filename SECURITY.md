@@ -67,9 +67,13 @@ Danach den Remote neu setzen und force-pushen:
 
 ```bash
 git remote add origin git@github.com:guidowoller/mac-setup.git
-git push --force --all
+git push -u --force origin main   # -u setzt den Upstream (filter-repo entfernt die Branch-Tracking-Konfiguration)
 git push --force --tags
 ```
+
+> `git filter-repo` entfernt `origin` und die Tracking-Konfiguration. Ohne `-u` meldet
+> `git pull` später „There is no tracking information for the current branch“.
+> Nachträglich beheben: `git branch --set-upstream-to=origin/main main`
 
 > **Hinweis:** Alle anderen Klone des Repos müssen danach neu geclont werden –
 > `git pull` reicht nach einem History-Rewrite nicht.
