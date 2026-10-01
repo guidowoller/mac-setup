@@ -129,12 +129,15 @@ if [ -d "$WG_DIR" ]; then
     ok "WireGuard config directory exists"
     for conf in wg-fim5.conf wg-faith.conf; do
         if [ -f "$WG_DIR/$conf" ]; then
-            # Sicherstellen dass kein Placeholder mehr drin ist
-            if grep -q "<ENTER_" "$WG_DIR/$conf"; then
-                fail "  $conf contains unfilled placeholders!"
-            else
-                ok "  $conf present and filled"
-            fi
+            # Sicherstellen dass kein Placeholder mehr drin ist.
+            # Die Dateien gehoeren root (chmod 600): ohne Leserecht kann das
+            # nicht geprueft werden -> Warnung statt falschem "ok".
+            grep -q "<ENTER_" "$WG_DIR/$conf" 2>/dev/null
+            case $? in
+                0) fail "  $conf contains unfilled placeholders!" ;;
+                1) ok   "  $conf present and filled" ;;
+                *) warn "  $conf present, but not readable without sudo (placeholders not checked; try: sudo grep -c '<ENTER_' $WG_DIR/$conf)" ;;
+            esac
         else
             fail "  $conf missing"
         fi

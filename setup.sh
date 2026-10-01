@@ -276,14 +276,13 @@ fi
 
 echo "Configuring iTerm2..."
 
-ITERM_PROFILE_DIR="$REPO/config"
-
-if [ -f "$ITERM_PROFILE_DIR/iterm2-profiles.json" ]; then
-    defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
-    defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$ITERM_PROFILE_DIR"
-fi
-
-killall iTerm2 2>/dev/null || true
+# Hinweis: iTerm2-Einstellungen kommen aus macos/restore.sh (macos/preferences/iterm2.plist).
+# Frueher wurde hier PrefsCustomFolder auf $REPO/config gesetzt und iTerm2 beendet.
+# Das fuehrte zur Meldung "Missing or malformed file at .../config" (dort liegt keine
+# com.googlecode.iterm2.plist) und beendete das Terminal, aus dem setup.sh lief.
+# Eine eventuell vorhandene alte Einstellung wird hier entfernt.
+defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool false 2>/dev/null || true
+defaults delete com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true
 
 
 # ----------------------------
