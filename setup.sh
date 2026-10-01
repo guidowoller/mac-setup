@@ -517,7 +517,9 @@ fi
 
 echo "Setting wallpaper..."
 
-WALLPAPER="$REPO/assets/wallpaper.jpg"
+# Das Wallpaper liegt nicht mehr im Repo (20 MB), sondern in iCloud Drive/Dokumente.
+# Es ist dieselbe Datei, die mode.sh fuer den Modus "freizeit" nutzt.
+WALLPAPER="$HOME/Documents/wallpaper/wallpaper-freizeit.jpg"
 
 if [ -f "$WALLPAPER" ]; then
     sleep 2
@@ -531,6 +533,7 @@ end tell
 EOF
 else
     echo "Wallpaper not found: $WALLPAPER"
+    echo "(iCloud Drive may not have synced Documents yet - 'mode freizeit' sets it later.)"
 fi
 
 # ----------------------------

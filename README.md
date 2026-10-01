@@ -43,6 +43,7 @@ The setup script performs the following tasks:
 - installs and configures WireGuard
 - sets up VS Code, Neovim and iTerm2
 - restores macOS preferences
+- sets the default wallpaper (`~/Documents/wallpaper/wallpaper-freizeit.jpg`, comes from iCloud Drive; skipped if not synced yet)
 - restores Apache Directory Studio (LDAP) configuration
 - installs the LaunchAgents from `launchagents/` (depending on the Mac role, see below)
 
