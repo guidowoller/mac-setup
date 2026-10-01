@@ -18,17 +18,22 @@ This repository contains everything required to set up a new Mac quickly and rep
 
 ## 🚀 Bootstrap a new Mac
 
-Run the bootstrap script:
+After a fresh macOS install, sign in to iCloud and run the script from the
+iCloud Drive folder `bootstrap`:
 
-    curl -fsSL https://raw.githubusercontent.com/guidowoller/mac-setup/main/bootstrap.sh | bash
+    bash ~/Library/Mobile\ Documents/com~apple~CloudDocs/bootstrap/mac-bootstrap.sh
+
+(`get_mac-setup.sh` in the same folder only clones the repo, for manual use.)
 
 This will:
 
-1. Install Xcode Command Line Tools  
-2. Install Homebrew  
-3. Clone this repository  
-4. Run `setup.sh`  
-5. Install all tools and configuration  
+1. Install the Xcode Command Line Tools (if missing; run the script again afterwards)  
+2. Clone this repository shallow (`--depth 1`, without history) to `~/mac-setup`, or pull it if it already exists  
+3. Run `bootstrap.sh` from the repo: installs Homebrew  
+4. Run `setup.sh`: installs all tools and configuration  
+
+The folder `bootstrap` also holds `wallpaper.jpg`, which `setup.sh` uses as a
+fallback default wallpaper. The repo itself no longer contains the image.
 
 ---
 

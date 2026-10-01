@@ -517,11 +517,22 @@ fi
 
 echo "Setting wallpaper..."
 
-# Das Wallpaper liegt nicht mehr im Repo (20 MB), sondern in iCloud Drive/Dokumente.
-# Es ist dieselbe Datei, die mode.sh fuer den Modus "freizeit" nutzt.
-WALLPAPER="$HOME/Documents/wallpaper/wallpaper-freizeit.jpg"
+# Das Wallpaper liegt nicht mehr im Repo (20 MB), sondern in iCloud Drive:
+#  1. Documents/wallpaper/wallpaper-freizeit.jpg (wie von mode.sh genutzt)
+#  2. iCloud Drive/bootstrap/wallpaper.jpg (liegt neben mac-bootstrap.sh und ist
+#     auf einem frisch installierten Mac frueher da als der Documents-Ordner)
+WALLPAPER=""
+for candidate in \
+    "$HOME/Documents/wallpaper/wallpaper-freizeit.jpg" \
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap/wallpaper.jpg"
+do
+    if [ -f "$candidate" ]; then
+        WALLPAPER="$candidate"
+        break
+    fi
+done
 
-if [ -f "$WALLPAPER" ]; then
+if [ -n "$WALLPAPER" ]; then
     sleep 2
 
     osascript <<EOF
@@ -532,8 +543,8 @@ tell application "System Events"
 end tell
 EOF
 else
-    echo "Wallpaper not found: $WALLPAPER"
-    echo "(iCloud Drive may not have synced Documents yet - 'mode freizeit' sets it later.)"
+    echo "No wallpaper found (looked in ~/Documents/wallpaper and iCloud Drive/bootstrap)."
+    echo "(iCloud Drive may not have synced yet - 'mode freizeit' sets it later.)"
 fi
 
 # ----------------------------
