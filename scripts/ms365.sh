@@ -8,7 +8,7 @@ RED="\033[0;31m"
 RESET="\033[0m"
 
 PLIST="$HOME/Library/LaunchAgents/com.guido.ms365sync.plist"
-SCRIPT="$HOME/bin/ms365sync.scpt"
+SCRIPT="$HOME/bin/ms365sync-run.sh"
 LOG_OUT="$HOME/Library/Logs/ms365sync.out.log"
 LOG_ERR="$HOME/Library/Logs/ms365sync.err.log"
 INTERVAL_DEFAULT=3600
@@ -121,7 +121,7 @@ case "$cmd" in
     echo "Executing..."
     echo ""
 
-    /usr/bin/osascript "$SCRIPT"
+    /bin/bash "$SCRIPT"
 
     echo ""
     echo "✔ Sync finished"

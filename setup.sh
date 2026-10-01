@@ -7,6 +7,43 @@ REPO="$HOME/mac-setup"
 echo "Running mac setup..."
 
 # ----------------------------
+# Rolle dieses Macs (uni / privat)
+# ----------------------------
+# Wird einmal abgefragt und in ~/.mac-role gespeichert. Davon haengt ab:
+# WireGuard-Items in 1Password und welche LaunchAgents installiert werden.
+
+ROLE_FILE="$HOME/.mac-role"
+MAC_ROLE=""
+
+if [ -f "$ROLE_FILE" ]; then
+    MAC_ROLE=$(tr -d '[:space:]' < "$ROLE_FILE")
+fi
+
+case "$MAC_ROLE" in
+    uni|privat) ;;
+    *)
+        echo ""
+        echo "Is this a UNI or PRIVATE Mac?"
+        echo ""
+        echo "u = university mac"
+        echo "p = private mac"
+        echo ""
+        read -rp "[u/p]: " ROLE_ANSWER
+        case "$ROLE_ANSWER" in
+            u|U) MAC_ROLE="uni" ;;
+            p|P) MAC_ROLE="privat" ;;
+            *)
+                echo "Invalid selection. Please run setup again."
+                exit 1
+                ;;
+        esac
+        echo "$MAC_ROLE" > "$ROLE_FILE"
+        ;;
+esac
+
+echo "Mac role: $MAC_ROLE (stored in $ROLE_FILE)"
+
+# ----------------------------
 # Homebrew packages
 # ----------------------------
 
@@ -62,7 +99,7 @@ mkdir -p "$BIN_DIR"
 # wichtig: verhindert Probleme bei leeren Matches
 shopt -s nullglob
 
-SCRIPT_FILES=("$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.scpt)
+SCRIPT_FILES=("$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.py)
 
 if [ ${#SCRIPT_FILES[@]} -eq 0 ]; then
     echo "No scripts found in $SCRIPT_DIR"
@@ -126,29 +163,46 @@ mkdir -p "$OP_DIR"
 cp "$REPO/1password/agent.toml" "$OP_DIR/agent.toml" 2>/dev/null || true
 
 # ----------------------------
-# ms365 sync (LaunchAgent)
+# LaunchAgents (launchagents/*.plist)
 # ----------------------------
+# Jede Plist im Repo wird installiert, ausser sie ist fuer diese Rolle nicht
+# vorgesehen. ms365sync (Kalender-Sync) laeuft bewusst nur auf dem privaten Mac,
+# damit nicht mehrere Macs gleichzeitig in denselben iCloud-Kalender schreiben.
 
-echo "Installing ms365 sync LaunchAgent..."
+agent_wanted() {
+    case "$1" in
+        com.guido.ms365sync) [ "$MAC_ROLE" = "privat" ] ;;
+        *) return 0 ;;
+    esac
+}
 
 LAUNCHAGENT_DIR="$HOME/Library/LaunchAgents"
-PLIST_NAME="com.guido.ms365sync.plist"
-PLIST_SRC="$REPO/launchagents/$PLIST_NAME"
-PLIST_DST="$LAUNCHAGENT_DIR/$PLIST_NAME"
-
 mkdir -p "$LAUNCHAGENT_DIR"
 mkdir -p "$HOME/Library/Logs"
 
-chmod +x "$REPO/scripts/ms365sync.scpt"
+shopt -s nullglob
+for PLIST_SRC in "$REPO"/launchagents/*.plist; do
+    PLIST_NAME=$(basename "$PLIST_SRC")
+    LABEL="${PLIST_NAME%.plist}"
+    PLIST_DST="$LAUNCHAGENT_DIR/$PLIST_NAME"
 
-TMP_PLIST=$(mktemp)
-sed "s|\$HOME|$HOME|g" "$PLIST_SRC" > "$TMP_PLIST"
+    launchctl bootout gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
 
-launchctl bootout gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
-cp "$TMP_PLIST" "$PLIST_DST"
-launchctl bootstrap gui/$(id -u) "$PLIST_DST" 2>/dev/null || true
+    if agent_wanted "$LABEL"; then
+        sed "s|\$HOME|$HOME|g" "$PLIST_SRC" > "$PLIST_DST"
+        if launchctl bootstrap gui/$(id -u) "$PLIST_DST" 2>/dev/null; then
+            echo "→ $LABEL installed and loaded"
+        else
+            echo "→ $LABEL installed (could not load, check: launchctl print gui/$(id -u)/$LABEL)"
+        fi
+    else
+        rm -f "$PLIST_DST"
+        echo "→ $LABEL skipped (not intended for role: $MAC_ROLE)"
+    fi
+done
+shopt -u nullglob
 
-echo "ms365 sync ready."
+echo "LaunchAgents ready."
 
 # ----------------------------
 # starship config (symlink)
@@ -251,14 +305,12 @@ fi
 # ----------------------------
 
 echo ""
-echo "WireGuard configuration"
-echo "Is this a UNI or PRIVATE Mac?"
-echo ""
-echo "u = university mac"
-echo "p = private mac"
-echo ""
+echo "WireGuard configuration (role: $MAC_ROLE)"
 
-read -rp "[u/p]: " WG_ENV
+case "$MAC_ROLE" in
+    uni)    WG_ENV="u" ;;
+    privat) WG_ENV="p" ;;
+esac
 
 case "$WG_ENV" in
   u|U)
@@ -481,6 +533,24 @@ EOF
 else
     echo "Wallpaper not found: $WALLPAPER"
 fi
+
+# ----------------------------
+# Manual follow-ups (macOS privacy / TCC)
+# ----------------------------
+
+echo ""
+echo "--------------------------------------------------"
+echo "Manual steps for the background agents"
+echo ""
+echo "1) Downloads watcher: grant /bin/bash"
+echo "   System Settings > Privacy & Security > Full Disk Access > + > /bin/bash"
+if [ "$MAC_ROLE" = "privat" ]; then
+echo ""
+echo "2) Calendar sync: run once in a terminal to grant calendar access:"
+echo "   uv run --script ~/bin/sync_calendars.py --dry-run"
+fi
+echo "--------------------------------------------------"
+echo ""
 
 # ----------------------------
 # Finished

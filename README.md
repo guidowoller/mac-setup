@@ -44,7 +44,7 @@ The setup script performs the following tasks:
 - sets up VS Code, Neovim and iTerm2
 - restores macOS preferences
 - restores Apache Directory Studio (LDAP) configuration
-- installs ms365 sync LaunchAgent
+- installs the LaunchAgents from `launchagents/` (depending on the Mac role, see below)
 
 ---
 
@@ -97,9 +97,32 @@ Controls:
 
 ---
 
-### MS365 Sync
+### MS365 / calendar sync (private Mac only)
 
     ms365.sh run
+    ms365.sh check
+
+`sync_calendars.py` (run via `uv`) mirrors the BDV and DDV calendars into the
+iCloud calendar "Guido". `ms365sync-run.sh` wraps it for launchd and writes a
+status line for `ms365.sh check`.
+
+### Downloads watcher
+
+`watch_downloads.sh` (fswatch, via launchd) moves finished files from
+`~/Downloads` to iCloud Drive/Downloads (`sync_downloads.sh`). Log:
+`~/Library/Logs/downloads-sync.log`.
+
+---
+
+## 🏷️ Mac role
+
+`setup.sh` asks once whether this is a university (`u`) or private (`p`) Mac
+and stores the answer in `~/.mac-role` (`uni` or `privat`). The role controls:
+
+- which 1Password WireGuard items are used
+- which LaunchAgents are installed: the downloads watcher on every Mac, the
+  calendar sync (`com.guido.ms365sync`) only on the private Mac, so that only
+  one machine writes to the shared iCloud calendar
 
 ---
 

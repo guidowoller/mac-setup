@@ -25,7 +25,7 @@ fi
 # Important CLI tools
 # ----------------------------
 
-for cmd in tmux fzf eza starship wg nvim zoxide yazi autossh; do
+for cmd in tmux fzf eza starship wg nvim zoxide yazi autossh fswatch uv; do
     if command -v "$cmd" >/dev/null 2>&1; then
         ok "$cmd installed"
     else
@@ -89,12 +89,26 @@ for df in .zshrc .vimrc .nanorc .tmux.conf .gitconfig; do
 done
 
 # ----------------------------
+# Rolle dieses Macs
+# ----------------------------
+
+MAC_ROLE=""
+if [ -f "$HOME/.mac-role" ]; then
+    MAC_ROLE=$(tr -d '[:space:]' < "$HOME/.mac-role")
+    ok "Mac role: $MAC_ROLE"
+else
+    fail "~/.mac-role missing (run setup.sh)"
+fi
+
+# ----------------------------
 # ~/bin scripts
 # ----------------------------
 
 if [ -d "$HOME/bin" ]; then
     ok "~/bin exists"
-    for script in mode.sh vpn.sh ms365.sh ms365sync.scpt a.sh ap.sh close-all-apps.sh; do
+    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh"
+    [ "$MAC_ROLE" = "privat" ] && BIN_SCRIPTS="$BIN_SCRIPTS ms365sync-run.sh sync_calendars.py"
+    for script in $BIN_SCRIPTS; do
         if [ -f "$HOME/bin/$script" ]; then
             ok "  ~/bin/$script"
         else
@@ -140,33 +154,60 @@ else
 fi
 
 # ----------------------------
-# LaunchAgent: ms365sync
+# LaunchAgents
 # ----------------------------
 
-PLIST="$HOME/Library/LaunchAgents/com.guido.ms365sync.plist"
+check_agent() {
+    local label="$1"
+    local plist="$HOME/Library/LaunchAgents/$label.plist"
 
-if [ -f "$PLIST" ]; then
-    ok "ms365sync plist installed"
-else
-    fail "ms365sync plist missing ($PLIST)"
-fi
-
-if launchctl list | grep -q "com.guido.ms365sync"; then
-    ok "ms365sync LaunchAgent loaded"
-else
-    fail "ms365sync LaunchAgent not loaded"
-fi
-
-LOG_OUT="$HOME/Library/Logs/ms365sync.out.log"
-if [ -f "$LOG_OUT" ]; then
-    LAST=$(grep "ms365sync:" "$LOG_OUT" 2>/dev/null | tail -n1)
-    if [ -n "$LAST" ]; then
-        ok "ms365sync last run: $(echo "$LAST" | awk '{print $1}')"
+    if [ -f "$plist" ]; then
+        ok "$label plist installed"
     else
-        warn "ms365sync log exists but no runs recorded yet"
+        fail "$label plist missing ($plist)"
+        return
     fi
+
+    if launchctl print "gui/$(id -u)/$label" >/dev/null 2>&1; then
+        ok "$label LaunchAgent loaded"
+    else
+        fail "$label LaunchAgent not loaded"
+    fi
+}
+
+# Downloads-Watcher: auf allen Macs
+check_agent com.guido.downloadsync
+
+if launchctl print "gui/$(id -u)/com.guido.downloadsync" 2>/dev/null | grep -q "state = running"; then
+    ok "downloadsync watcher running"
 else
-    warn "ms365sync has never run (no log file)"
+    fail "downloadsync watcher not running"
+fi
+
+DL_LOG="$HOME/Library/Logs/downloads-sync.log"
+if [ -f "$DL_LOG" ] && grep -q "FEHLER" "$DL_LOG"; then
+    warn "downloads-sync.log contains errors (last: $(grep FEHLER "$DL_LOG" | tail -n1))"
+fi
+
+# Kalender-Sync: nur auf dem privaten Mac
+if [ "$MAC_ROLE" = "privat" ]; then
+    check_agent com.guido.ms365sync
+
+    LOG_OUT="$HOME/Library/Logs/ms365sync.out.log"
+    if [ -f "$LOG_OUT" ]; then
+        LAST=$(grep "ms365sync:" "$LOG_OUT" 2>/dev/null | tail -n1)
+        if [ -z "$LAST" ]; then
+            warn "ms365sync log exists but no runs recorded yet"
+        elif echo "$LAST" | grep -q "ms365sync: OK"; then
+            ok "ms365sync last run: $(echo "$LAST" | awk '{print $1}')"
+        else
+            fail "ms365sync last run failed: $LAST"
+        fi
+    else
+        warn "ms365sync has never run (no log file)"
+    fi
+elif [ -f "$HOME/Library/LaunchAgents/com.guido.ms365sync.plist" ]; then
+    fail "ms365sync agent is installed on a non-private Mac (should only run on the private one)"
 fi
 
 # ----------------------------

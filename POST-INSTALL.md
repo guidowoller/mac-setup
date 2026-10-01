@@ -12,6 +12,15 @@ Follow this checklist after running `bootstrap.sh` and `setup.sh`.
 
 - [ ] Adjust Spotlight Search
 
+- [ ] Downloads watcher: grant Full Disk Access to `/bin/bash`  
+      System Settings → Privacy & Security → Full Disk Access → `+` → `/bin/bash`  
+      (without it the background agent cannot read ~/Downloads or write to iCloud Drive)
+
+- [ ] Private Mac only: calendar sync access  
+      Run once in a terminal and allow the calendar prompt:
+
+      uv run --script ~/bin/sync_calendars.py --dry-run
+
 ---
 
 ## 🌐 Internet Accounts
@@ -68,9 +77,18 @@ Follow this checklist after running `bootstrap.sh` and `setup.sh`.
 
       vpn status
 
-- [ ] Run MS365 sync
+- [ ] Run `doctor.sh` (checks tools, symlinks, WireGuard, LaunchAgents)
+
+      doctor.sh
+
+- [ ] Downloads watcher: drop a test file into ~/Downloads, it should appear in iCloud Drive/Downloads after a few seconds
+
+      tail ~/Library/Logs/downloads-sync.log
+
+- [ ] Private Mac only: run MS365 / calendar sync
 
       ms365.sh run
+      ms365.sh check
 
 - [ ] Test VPN
 
