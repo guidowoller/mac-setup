@@ -13,7 +13,7 @@ PrivateKey = <REMOVED>=   # wg-faith
 PrivateKey = <REMOVED>=   # wg-fim5
 ```
 
-Ebenso waren die zugehörigen IP-Adressen (`<REMOVED-NET>`, `<REMOVED-IP>`)
+Ebenso waren die zugehörigen IP-Adressen (Client-Adressen der VPN-Tunnel)
 kurz im Klartext in der History. Obwohl die aktuellen Dateien saubere
 Platzhalter enthalten, sind die alten Werte weiterhin über `git log -p`
 abrufbar.
@@ -57,8 +57,8 @@ git filter-repo --force \
   --replace-text <(cat <<'REPLACEMENTS'
 <REMOVED>==><REMOVED>
 <REMOVED>==><REMOVED>
-<REMOVED-NET>=><ENTER_IP_ADDRESS_HERE>
-<REMOVED-IP>=><ENTER_IP_ADDRESS_HERE>
+<alte-IP-1>=><ENTER_IP_ADDRESS_HERE>
+<alte-IP-2>=><ENTER_IP_ADDRESS_HERE>
 REPLACEMENTS
 )
 ```
@@ -91,3 +91,17 @@ sed -e 's/^PrivateKey.*/PrivateKey = <ENTER_PRIVATE_KEY_HERE>/' \
 ```
 
 Die echten Werte kommen ausschließlich zur Laufzeit aus 1Password (`op item get`).
+
+---
+
+## Uni-Infrastrukturdaten nicht mehr im Repo
+
+WireGuard-Peers (PublicKey, Endpoint, AllowedIPs), LDAP-Host/-Port/-Bind-DN und
+SSH-Host/-User stehen nicht mehr im Repository, sondern im 1Password-Item
+`Mac-Setup Uni` (Vault `University`). Im Repo liegen nur Vorlagen
+(`templates/*.tpl`) mit `{{ op://... }}`-Referenzen, die `setup.sh` per
+`op inject` fuellt.
+
+Wichtig: Die **Git-History** enthaelt diese Werte weiterhin (alte Commits).
+Das Entfernen aus dem aktuellen Stand ersetzt keinen History-Rewrite. Die
+Daten sind keine Zugangsdaten, erleichtern aber das Kartieren der Infrastruktur.

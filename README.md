@@ -9,7 +9,7 @@ This repository contains everything required to set up a new Mac quickly and rep
 - tmux / vim / nvim configuration
 - scripts (mode, vpn, ms365)
 - SSH configuration
-- WireGuard templates
+- WireGuard templates (without infrastructure data, see below)
 - VS Code settings and extensions
 - macOS preference restore
 - Apache Directory Studio configuration
@@ -132,15 +132,33 @@ and stores the answer in `~/.mac-role` (`uni` or `privat`). The role controls:
 
 ---
 
-## 🔐 WireGuard
+## 🔐 WireGuard, LDAP, SSH alias (data from 1Password)
 
-WireGuard configs are generated during setup.
+The repository contains no university infrastructure data (no endpoints,
+AllowedIPs, peer keys, LDAP host, SSH host). Only templates with
+`{{ op://... }}` references live in `templates/`; `setup.sh` fills them with
+`op inject` while 1Password is unlocked:
 
-Private keys and IPs are automatically pulled from 1Password.
+| Template | Result |
+| --- | --- |
+| `templates/wg-*.conf.tpl` | `/opt/homebrew/etc/wireguard/wg-*.conf` |
+| `templates/ldap-connections.xml.tpl` | Directory Studio `connections.xml` in `~/eclipse-workspace` |
+| `templates/ssh-uni.conf.tpl` | `~/.ssh/config.d/uni.conf` (alias `uni`) |
 
-Configs are stored in:
+Shared item for both Macs: Secure Note `Mac-Setup Uni` in vault `University`,
+section `uni`, fields (type Text): `wg_fim5_peer_public_key`,
+`wg_fim5_endpoint`, `wg_fim5_allowed_ips`, `wg_faith_peer_public_key`,
+`wg_faith_endpoint`, `wg_faith_allowed_ips`, `ldap_host`, `ldap_port`,
+`ldap_bind_dn`, `uni_ssh_host`, `uni_ssh_user`.
 
-    /opt/homebrew/etc/wireguard/
+Per-Mac items (role `uni` / `privat`) with the fields `private` and `address`:
+`WG-FIM5 Neu Guido Mac Uni|Privat` and `WG-FAITH Neu Guido Mac Uni|Privat`.
+Each of these fields must exist exactly once; otherwise setup skips the config
+and reports why.
+
+If 1Password is locked or a field is missing, setup does not abort: it skips
+the affected file, lists the reason at the end, and `doctor.sh` reports
+missing or unfilled files. Rerun `./setup.sh` afterwards.
 
 ---
 
@@ -168,7 +186,7 @@ Then commit:
     ├── dotfiles
     ├── config
     ├── launchagents
-    ├── wireguard
+    ├── templates
     ├── apache-directory-studio
     ├── vscode
     ├── macos

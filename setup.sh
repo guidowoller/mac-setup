@@ -144,6 +144,7 @@ echo ""
 echo "Please open 1Password now and enable:"
 echo ""
 echo "1Password → Settings → Developer → Use SSH Agent"
+echo "1Password → Settings → Developer → Integrate with 1Password CLI"
 echo ""
 echo "After enabling it, press ENTER to continue..."
 echo "--------------------------------------------------"
@@ -286,17 +287,71 @@ defaults delete com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true
 
 
 # ----------------------------
+# Uni-Daten aus 1Password (Item "Mac-Setup Uni")
+# ----------------------------
+# WireGuard-Peers, LDAP-Host und SSH-Alias stehen nicht im oeffentlichen Repo,
+# sondern als Vorlagen in templates/ ({{ op://... }}) und werden hier mit
+# `op inject` gefuellt. Fehler werden gesammelt und am Ende angezeigt.
+
+SETUP_WARNINGS=()
+warn_setup() {
+    echo "⚠️  $1"
+    SETUP_WARNINGS+=("$1")
+}
+
+# Feldwert aus einem 1Password-Item (JSON). Rueckgabe: 1 = fehlt, 2 = mehrdeutig
+op_field() {
+    local item="$1" label="$2" json
+    json=$(op item get "$item" --format json 2>/dev/null) || return 1
+    printf '%s' "$json" | python3 -c '
+import sys, json
+label = sys.argv[1]
+data = json.load(sys.stdin)
+vals = [f.get("value") for f in data.get("fields", []) if f.get("label") == label and f.get("value")]
+if not vals:
+    sys.exit(1)
+if len(vals) > 1:
+    sys.exit(2)
+print(vals[0])
+' "$label"
+}
+
+UNI_DATA_OK=1
+if ! op read "op://University/Mac-Setup Uni/uni/ldap_host" >/dev/null 2>&1; then
+    UNI_DATA_OK=0
+    warn_setup "1Password item 'Mac-Setup Uni' (vault University) not readable - Uni templates (WireGuard peers, LDAP, SSH alias) skipped. Unlock 1Password, enable 'Integrate with 1Password CLI', then rerun ./setup.sh"
+fi
+
+# ----------------------------
 # ssh config
 # ----------------------------
 
 echo "Installing SSH config..."
 
-mkdir -p "$HOME/.ssh"
+mkdir -p "$HOME/.ssh/config.d"
+chmod 700 "$HOME/.ssh"
 
 if [ ! -f "$HOME/.ssh/config" ]; then
-    cp "$REPO/ssh/config" "$HOME/.ssh/"
+    cp "$REPO/ssh/config" "$HOME/.ssh/config"
+elif ! grep -q '^Include ~/.ssh/config.d/\*' "$HOME/.ssh/config"; then
+    # Include muss vor allen Host-Bloecken stehen
+    { printf 'Include ~/.ssh/config.d/*\n\n'; cat "$HOME/.ssh/config"; } > "$HOME/.ssh/config.new"
+    mv "$HOME/.ssh/config.new" "$HOME/.ssh/config"
+    echo "Added Include for ~/.ssh/config.d to existing SSH config."
 else
-    echo "SSH config already exists – skipping."
+    echo "SSH config already exists – Include present."
+fi
+chmod 600 "$HOME/.ssh/config"
+
+# Alias "uni" (Host/User aus 1Password)
+if [ "$UNI_DATA_OK" = 1 ]; then
+    if SSH_UNI=$(op inject -i "$REPO/templates/ssh-uni.conf.tpl" 2>/dev/null); then
+        printf '%s\n' "$SSH_UNI" > "$HOME/.ssh/config.d/uni.conf"
+        chmod 600 "$HOME/.ssh/config.d/uni.conf"
+        echo "→ ssh alias 'uni' written to ~/.ssh/config.d/uni.conf"
+    else
+        warn_setup "SSH alias 'uni' not written (op inject failed for templates/ssh-uni.conf.tpl - check field names in 'Mac-Setup Uni')"
+    fi
 fi
 
 # ----------------------------
@@ -329,51 +384,63 @@ esac
 # ----------------------------
 # wireguard configs
 # ----------------------------
+# Peer-Daten (PublicKey/Endpoint/AllowedIPs) kommen per `op inject` aus dem
+# gemeinsamen Item "Mac-Setup Uni", PrivateKey/Address aus dem Item dieses Macs.
 
 echo "Installing WireGuard configs..."
 
-WG_SRC="$REPO/wireguard"
+WG_SRC="$REPO/templates"
 WG_DST="/opt/homebrew/etc/wireguard"
 
 sudo mkdir -p "$WG_DST"
 
-# Werte aus 1Password holen
-WG_FIM_KEY=$(op item get "$WG_FIM_ITEM" --fields private 2>/dev/null || true)
-WG_FIM_IP=$(op item get "$WG_FIM_ITEM" --fields address 2>/dev/null || true)
-WG_FAITH_KEY=$(op item get "$WG_FAITH_ITEM" --fields private 2>/dev/null || true)
-WG_FAITH_IP=$(op item get "$WG_FAITH_ITEM" --fields address 2>/dev/null || true)
+for tpl in "$WG_SRC"/wg-*.conf.tpl; do
+    [ -f "$tpl" ] || continue
 
-for f in "$WG_SRC"/*.conf; do
-    [ -f "$f" ] || continue
-
-    fname=$(basename "$f")
+    fname=$(basename "$tpl" .tpl)     # z.B. wg-fim5.conf
 
     case "$fname" in
-        wg-fim5.conf)
-            KEY="$WG_FIM_KEY"
-            IP="$WG_FIM_IP"
-            ;;
-        wg-faith.conf)
-            KEY="$WG_FAITH_KEY"
-            IP="$WG_FAITH_IP"
-            ;;
+        wg-fim5.conf)  ITEM="$WG_FIM_ITEM" ;;
+        wg-faith.conf) ITEM="$WG_FAITH_ITEM" ;;
         *)
-            KEY=""
-            IP=""
+            warn_setup "No 1Password item mapped for $fname - skipped"
+            continue
             ;;
     esac
 
-    if [ -n "$KEY" ] && [ -n "$IP" ]; then
-        sed -e "s|<ENTER_PRIVATE_KEY_HERE>|$KEY|" \
-            -e "s|<ENTER_IP_ADDRESS_HERE>|$IP|" \
-            "$f" | sudo tee "$WG_DST/$fname" > /dev/null
-    else
-        echo "Skipping $fname (missing key or IP)"
-        sudo cp "$f" "$WG_DST/$fname"
+    if [ "$UNI_DATA_OK" != 1 ]; then
+        warn_setup "$fname skipped (Uni data not available)"
+        continue
     fi
 
+    KEY=$(op_field "$ITEM" private) && rc=0 || rc=$?
+    case $rc in
+        0) ;;
+        2) warn_setup "$fname skipped: item '$ITEM' has more than one 'private' field - remove the old one"; continue ;;
+        *) warn_setup "$fname skipped: field 'private' missing in item '$ITEM'"; continue ;;
+    esac
+
+    IP=$(op_field "$ITEM" address) && rc=0 || rc=$?
+    case $rc in
+        0) ;;
+        2) warn_setup "$fname skipped: item '$ITEM' has more than one 'address' field"; continue ;;
+        *) warn_setup "$fname skipped: field 'address' missing in item '$ITEM'"; continue ;;
+    esac
+
+    RENDERED=$(op inject -i "$tpl" 2>/dev/null) && rc=0 || rc=$?
+    if [ "$rc" -ne 0 ]; then
+        warn_setup "$fname skipped: op inject failed (check field names in 'Mac-Setup Uni')"
+        continue
+    fi
+
+    printf '%s\n' "$RENDERED" \
+        | sed -e "s|<ENTER_PRIVATE_KEY_HERE>|$KEY|" \
+              -e "s|<ENTER_IP_ADDRESS_HERE>|$IP|" \
+        | sudo tee "$WG_DST/$fname" > /dev/null
     sudo chmod 600 "$WG_DST/$fname"
+    echo "→ $fname installed"
 done
+unset KEY IP RENDERED
 
 echo ""
 echo "Configuring sudo for WireGuard..."
@@ -453,6 +520,19 @@ if [ -d "$LDAP_SRC" ]; then
     cp -R "$LDAP_SRC"/org.apache.directory.studio.* "$LDAP_DST"/
 else
     echo "⚠️ LDAP config not found in repo"
+fi
+
+# connections.xml (Host, Port, Bind-DN) kommt aus 1Password
+if [ "$UNI_DATA_OK" = 1 ]; then
+    CONN_DIR="$LDAP_DST/org.apache.directory.studio.connection.core"
+    mkdir -p "$CONN_DIR"
+    if LDAP_XML=$(op inject -i "$REPO/templates/ldap-connections.xml.tpl" 2>/dev/null); then
+        printf '%s\n' "$LDAP_XML" > "$CONN_DIR/connections.xml"
+        chmod 600 "$CONN_DIR/connections.xml"
+        echo "→ LDAP connection written"
+    else
+        warn_setup "LDAP connections.xml not written (op inject failed - check field names in 'Mac-Setup Uni')"
+    fi
 fi
 
 # ----------------------------
@@ -545,6 +625,20 @@ EOF
 else
     echo "No wallpaper found (looked in ~/Documents/wallpaper and iCloud Drive/bootstrap)."
     echo "(iCloud Drive may not have synced yet - 'mode freizeit' sets it later.)"
+fi
+
+# ----------------------------
+# Warnings collected during setup
+# ----------------------------
+
+if [ "${#SETUP_WARNINGS[@]}" -gt 0 ]; then
+    echo ""
+    echo "=================================================="
+    echo "Setup finished with warnings:"
+    for w in "${SETUP_WARNINGS[@]}"; do
+        echo " - $w"
+    done
+    echo "=================================================="
 fi
 
 # ----------------------------

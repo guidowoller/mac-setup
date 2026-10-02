@@ -132,11 +132,11 @@ if [ -d "$WG_DIR" ]; then
             # Sicherstellen dass kein Placeholder mehr drin ist.
             # Die Dateien gehoeren root (chmod 600): ohne Leserecht kann das
             # nicht geprueft werden -> Warnung statt falschem "ok".
-            grep -q "<ENTER_" "$WG_DIR/$conf" 2>/dev/null
+            grep -q -E '<ENTER_|\{\{|op://' "$WG_DIR/$conf" 2>/dev/null
             case $? in
                 0) fail "  $conf contains unfilled placeholders!" ;;
                 1) ok   "  $conf present and filled" ;;
-                *) warn "  $conf present, but not readable without sudo (placeholders not checked; try: sudo grep -c '<ENTER_' $WG_DIR/$conf)" ;;
+                *) warn "  $conf present, but not readable without sudo (placeholders not checked; try: sudo grep -c -E '<ENTER_|op://' $WG_DIR/$conf)" ;;
             esac
         else
             fail "  $conf missing"
@@ -144,6 +144,38 @@ if [ -d "$WG_DIR" ]; then
     done
 else
     fail "WireGuard config directory missing ($WG_DIR)"
+fi
+
+# ----------------------------
+# Uni-Vorlagen (aus 1Password erzeugt)
+# ----------------------------
+
+SSH_UNI_CONF="$HOME/.ssh/config.d/uni.conf"
+if [ -f "$SSH_UNI_CONF" ]; then
+    if grep -q -E '\{\{|op://' "$SSH_UNI_CONF"; then
+        fail "ssh alias file contains unfilled references ($SSH_UNI_CONF)"
+    else
+        ok "ssh alias 'uni' present and filled"
+    fi
+else
+    fail "ssh alias file missing ($SSH_UNI_CONF) - rerun setup.sh with 1Password unlocked"
+fi
+
+if grep -q '^Include ~/.ssh/config.d/\*' "$HOME/.ssh/config" 2>/dev/null; then
+    ok "~/.ssh/config includes config.d"
+else
+    fail "~/.ssh/config has no 'Include ~/.ssh/config.d/*' (alias 'uni' not active)"
+fi
+
+LDAP_CONN="$HOME/eclipse-workspace/.metadata/.plugins/org.apache.directory.studio.connection.core/connections.xml"
+if [ -f "$LDAP_CONN" ]; then
+    if grep -q -E '\{\{|op://' "$LDAP_CONN"; then
+        fail "LDAP connections.xml contains unfilled references"
+    else
+        ok "LDAP connection present and filled"
+    fi
+else
+    warn "LDAP connections.xml not found ($LDAP_CONN) - Directory Studio plugin installed / setup.sh run?"
 fi
 
 # ----------------------------

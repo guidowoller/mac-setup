@@ -52,8 +52,8 @@ Follow this checklist after running `bootstrap.sh` and `setup.sh`.
 ## 🔧 Application Setup
 
 - [ ] Apache Directory Studio  
-      → verify LDAP connections  
-      → enter passwords if required
+      → verify LDAP connection "Uni LDAP" (host/port/bind DN come from 1Password)  
+      → enter password (not stored in the repo)
 
 - [ ] Windows App  
       → import winadmin connection from iCloud

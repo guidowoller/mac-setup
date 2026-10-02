@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <connections>
-  <connection id="42649701-0df8-40af-ac67-45c3f3f18536" name="Uni LDAP" host="example.org" port="636" encryptionMethod="LDAPS" authMethod="SIMPLE" bindPrincipal="uid=USER,ou=Users,dc=example,dc=org" saslQop="AUTH" saslSecStrenght="HIGH" saslMutualAuth="false" krb5CredentialsConf="USE_NATIVE" krb5Config="DEFAULT" krb5ConfigFile="" krb5Realm="" krb5KdcHost="" krb5KdcPort="88" readOnly="false" timeout="30000">
+  <connection id="42649701-0df8-40af-ac67-45c3f3f18536" name="Uni LDAP" host="{{ op://University/Mac-Setup Uni/uni/ldap_host }}" port="{{ op://University/Mac-Setup Uni/uni/ldap_port }}" encryptionMethod="LDAPS" authMethod="SIMPLE" bindPrincipal="{{ op://University/Mac-Setup Uni/uni/ldap_bind_dn }}" saslQop="AUTH" saslSecStrenght="HIGH" saslMutualAuth="false" krb5CredentialsConf="USE_NATIVE" krb5Config="DEFAULT" krb5ConfigFile="" krb5Realm="" krb5KdcHost="" krb5KdcPort="88" readOnly="false" timeout="30000">
     <extendedProperties>
       <extendedProperty key="ldapbrowser.pagedSearch" value="false"/>
       <extendedProperty key="detectedProperties.supportedControls" value="2.16.840.1.113730.3.4.5;2.16.840.1.113730.3.4.4;1.3.6.1.4.1.42.2.27.9.5.8;1.3.6.1.4.1.42.2.27.8.5.1;1.3.6.1.4.1.4203.1.9.1.1;2.16.840.1.113730.3.4.18;2.16.840.1.113730.3.4.2;1.3.6.1.4.1.4203.1.10.1;1.3.6.1.1.22;1.2.840.113556.1.4.319;1.2.826.0.1.3344810.2.3;1.3.6.1.1.13.2;1.3.6.1.1.13.1;1.3.6.1.1.12"/>

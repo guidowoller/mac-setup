@@ -1,2 +1,6 @@
+# Weitere Hosts (z.B. "uni") liegen in ~/.ssh/config.d/ und werden von setup.sh
+# aus 1Password erzeugt - sie stehen nicht im Repo.
+Include ~/.ssh/config.d/*
+
 Host *
 	IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
