@@ -114,6 +114,7 @@ alias closeall="$HOME/bin/close-all-apps.sh"
 alias sync-dotfiles="~/mac-setup/sync.sh && cd ~/mac-setup && git status"
 alias doctor="~/mac-setup/doctor.sh"
 alias update="~/mac-setup/update.sh"
+alias drift="$HOME/bin/drift.sh"
 
 # nvim for vi
 alias vi="nvim"
@@ -139,6 +140,14 @@ setopt HIST_IGNORE_SPACE
 # Convenience
 # ----------------------------
 setopt AUTO_CD
+
+# ----------------------------
+# Drift-Anzeige (mac-setup)
+# ----------------------------
+# Warnt beim Start der Shell, wenn mac-setup lokale Aenderungen hat, Commits nicht
+# gepusht sind oder auf GitHub Neues liegt. Blockiert nie (GitHub-Abfrage laeuft
+# hoechstens alle 30 Minuten im Hintergrund). Details: `drift`
+[ -x "$HOME/bin/drift.sh" ] && "$HOME/bin/drift.sh" --prompt
 
 # ----------------------------
 # Plugins (robust)

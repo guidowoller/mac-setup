@@ -106,7 +106,7 @@ fi
 
 if [ -d "$HOME/bin" ]; then
     ok "~/bin exists"
-    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh"
+    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh"
     [ "$MAC_ROLE" = "privat" ] && BIN_SCRIPTS="$BIN_SCRIPTS ms365sync-run.sh sync_calendars.py"
     for script in $BIN_SCRIPTS; do
         if [ -f "$HOME/bin/$script" ]; then
@@ -176,6 +176,21 @@ if [ -f "$LDAP_CONN" ]; then
     fi
 else
     warn "LDAP connections.xml not found ($LDAP_CONN) - Directory Studio plugin installed / setup.sh run?"
+fi
+
+# ----------------------------
+# Drift (mac-setup vs. GitHub)
+# ----------------------------
+
+if [ -x "$(dirname "$0")/scripts/drift.sh" ]; then
+    if DRIFT_OUT=$("$(dirname "$0")/scripts/drift.sh" 2>&1); then
+        ok "mac-setup in sync with GitHub, no local changes"
+    else
+        warn "mac-setup drift detected:"
+        echo "$DRIFT_OUT" | sed 's/^/        /'
+    fi
+else
+    warn "scripts/drift.sh missing"
 fi
 
 # ----------------------------

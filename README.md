@@ -180,6 +180,25 @@ Extra terms can be added by hand, one per line, in
 
 ---
 
+## 📡 Drift display
+
+With several Macs, `mac-setup` easily drifts apart. `scripts/drift.sh`
+(installed as `~/bin/drift.sh`, alias `drift`) shows whether this Mac differs
+from GitHub: uncommitted local changes, commits not pushed, new commits not
+pulled yet.
+
+- `drift` - full report with a fresh query (exit code 1 on drift)
+- iTerm shells run `drift.sh --prompt` at startup (from `dotfiles/.zshrc.iterm`):
+  quiet unless there is something to do; the GitHub query (`git ls-remote` over
+  HTTPS, hard timeout, no SSH agent / 1Password prompt) runs in the background at
+  most every 30 minutes, so a warning about news on GitHub appears in the next
+  shell after the query finished
+- `doctor.sh` includes the same check as a warning
+
+It only displays; it never pulls or pushes by itself.
+
+---
+
 ## 🔄 Updating configuration
 
 To sync local changes back into the repository:
