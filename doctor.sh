@@ -106,7 +106,7 @@ fi
 
 if [ -d "$HOME/bin" ]; then
     ok "~/bin exists"
-    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh brewcheck.sh"
+    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh brewcheck.sh histsync.sh"
     [ "$MAC_ROLE" = "privat" ] && BIN_SCRIPTS="$BIN_SCRIPTS ms365sync-run.sh sync_calendars.py"
     for script in $BIN_SCRIPTS; do
         if [ -f "$HOME/bin/$script" ]; then
@@ -176,6 +176,31 @@ if [ -f "$LDAP_CONN" ]; then
     fi
 else
     warn "LDAP connections.xml not found ($LDAP_CONN) - Directory Studio plugin installed / setup.sh run?"
+fi
+
+# ----------------------------
+# Shell-History-Sync (iCloud)
+# ----------------------------
+
+HIST_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs/shell-history"
+HIST_HOST="$(scutil --get LocalHostName 2>/dev/null || hostname -s)"
+if [ -d "$HIST_DIR" ]; then
+    ok "iCloud history folder exists"
+    if [ -f "$HIST_DIR/$HIST_HOST.zsh_history" ]; then
+        ok "own history file published ($HIST_HOST.zsh_history)"
+    else
+        warn "own history file not in iCloud yet (open a new iTerm tab or run: histsync push)"
+    fi
+    HIST_OTHERS=$(ls "$HIST_DIR" 2>/dev/null | grep -c '\.zsh_history$')
+    [ "$HIST_OTHERS" -gt 1 ] && ok "history files of other Macs present" \
+        || warn "no history file of another Mac yet (nothing to merge)"
+else
+    warn "iCloud history folder missing (created on first iTerm shell start with histsync)"
+fi
+if [ -f "$HOME/.zsh_history" ] && grep -q -E '^: [0-9]+:[0-9]+;' "$HOME/.zsh_history"; then
+    ok "local history has timestamps (EXTENDED_HISTORY)"
+else
+    warn "local history has no timestamps yet (new entries get them once .zshrc.iterm is loaded)"
 fi
 
 # ----------------------------

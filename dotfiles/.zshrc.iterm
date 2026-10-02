@@ -130,12 +130,28 @@ alias mode="~/mac-setup/scripts/mode.sh"
 # ----------------------------
 # History
 # ----------------------------
-HISTSIZE=10000
-SAVEHIST=10000
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
 
+setopt EXTENDED_HISTORY      # Zeitstempel pro Eintrag (noetig fuer den Sync/Merge)
 setopt HIST_IGNORE_DUPS
 setopt SHARE_HISTORY
-setopt HIST_IGNORE_SPACE
+setopt HIST_IGNORE_SPACE     # Befehl mit fuehrendem Leerzeichen wird nicht gespeichert
+
+# Befehle mit offensichtlichen Geheimnissen nicht in die History-Datei schreiben:
+# sie wird per iCloud zwischen den Macs abgeglichen (unverschluesselt bei Apple).
+# Nur eine Vorsichtsmassnahme - Geheimnisse besser gar nicht in die Kommandozeile tippen.
+HISTORY_IGNORE='(*PASSWORD=*|*PASSWD=*|*TOKEN=*|*SECRET=*|*API_KEY=*|*PrivateKey*|op read *|op item get *)'
+
+# History-Sync ueber iCloud (pro Mac eine Datei, Merge beim Shell-Start).
+# Details: scripts/histsync.sh, README
+if [ -x "$HOME/bin/histsync.sh" ]; then
+  "$HOME/bin/histsync.sh" start
+  _histsync_push() { "$HOME/bin/histsync.sh" push >/dev/null 2>&1 }
+  zshexit_functions+=(_histsync_push)
+fi
+alias histsync="$HOME/bin/histsync.sh"
 
 # ----------------------------
 # Convenience

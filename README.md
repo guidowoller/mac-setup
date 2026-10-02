@@ -215,6 +215,31 @@ per line, not part of the repo). `doctor.sh` shows the result as a warning.
 
 ---
 
+## 📜 Shell history sync (iCloud)
+
+The zsh history is shared between the Macs through iCloud Drive without a
+shared file that two Macs write to (which causes conflict copies and lost
+lines):
+
+- each Mac publishes only its **own** file:
+  `iCloud Drive/shell-history/<computer name>.zsh_history`
+- when an iTerm shell starts, `scripts/histsync.sh start` merges the files of the
+  other Macs into the local `~/.zsh_history` (deduplicated by timestamp and
+  command, sorted by time, at most 50000 entries) and publishes the own file;
+  a shell exit publishes it again
+- needs `EXTENDED_HISTORY` (set in `dotfiles/.zshrc.iterm`). Before the first merge
+  `~/.zsh_history.pre-histsync` is saved as a backup
+- `histsync status` shows files, entry counts and age
+
+Limits: the history lies unencrypted in iCloud. `HISTORY_IGNORE` skips commands
+with obvious secrets (`PASSWORD=`, `TOKEN=`, ...), commands starting with a space
+are never stored - still, do not type secrets on the command line. Entries from the
+other Mac appear in the next new shell after iCloud has delivered the file. Open
+shells keep their own session; a merge replaces the history file, so a command
+written in the same millisecond by another tab can get lost (very rare).
+
+---
+
 ## 🔄 Updating configuration
 
 To sync local changes back into the repository:
