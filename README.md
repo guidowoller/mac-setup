@@ -240,6 +240,29 @@ written in the same millisecond by another tab can get lost (very rare).
 
 ---
 
+## ⬆️ Upgrade routine (`upgrade`)
+
+Two scripts, two directions:
+
+- `update.sh` (alias `update`) brings **your local configuration into the repo**
+  (backup, commit, push)
+- `scripts/upgrade.sh` (alias `upgrade`) brings **this Mac up to the repo's state**
+  and keeps the software current:
+  1. `git pull --ff-only` for mac-setup (skipped if tracked files have local changes)
+  2. `brew update`, `brew upgrade`, `brew upgrade --cask`, `brew cleanup -s`
+  3. `brew bundle --no-upgrade`: installs packages that other Macs added to the
+     Brewfile (upgrades nothing extra)
+  4. links new scripts from `scripts/` into `~/bin`
+  5. shows pending macOS updates (installing stays manual: `sudo softwareupdate -ia`)
+
+  At the end it lists what worked, what needs attention and hints such as
+  "run `./setup.sh` again" when setup-relevant files changed. `upgrade --check`
+  only shows drift, Brewfile differences, outdated packages and macOS updates and
+  changes nothing. It never runs `setup.sh`, installs macOS updates or uninstalls
+  packages by itself.
+
+---
+
 ## 🔄 Updating configuration
 
 To sync local changes back into the repository:

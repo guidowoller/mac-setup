@@ -6,7 +6,8 @@
 #   brewcheck.sh --add    fehlende Eintraege interaktiv ins Brewfile uebernehmen
 #                         (deinstalliert NIE etwas)
 #
-# 1. "Im Brewfile, aber nicht installiert"  -> brew bundle check
+# 1. "Im Brewfile, aber nicht installiert (oder veraltet)" -> brew bundle check
+#    (brew meldet beides mit "needs to be installed or updated")
 # 2. "Installiert, aber nicht im Brewfile"  -> brew bundle cleanup (Trockenlauf;
 #    beruecksichtigt Aliase und Abhaengigkeiten)
 # Pakete, die bewusst nur auf einem Mac liegen sollen, koennen in
@@ -100,7 +101,7 @@ echo "Brewfile: $BREWFILE"
 
 if [ -n "$MISSING" ]; then
     RC=1
-    echo "⚠ Im Brewfile, aber hier nicht installiert (brew bundle install):"
+    echo "⚠ Im Brewfile, aber hier nicht installiert oder veraltet (fehlt: brew bundle install, veraltet: upgrade):"
     printf '%s\n' "$MISSING" | sed 's/^/    /'
 elif [ "$CHECK_RC" -ne 0 ]; then
     RC=1
