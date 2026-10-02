@@ -355,6 +355,24 @@ if [ "$UNI_DATA_OK" = 1 ]; then
 fi
 
 # ----------------------------
+# Git pre-commit hook (verhindert, dass Uni-Daten/Schluessel ins Repo kommen)
+# ----------------------------
+# Der Hook liegt im Repo (hooks/), die Verbotsliste mit echten Werten NICHT:
+# sie wird aus 1Password nach ~/.config/mac-setup/forbidden.txt erzeugt.
+
+echo "Installing git pre-commit hook..."
+chmod +x "$REPO/hooks/pre-commit" "$REPO/hooks/update-forbidden.sh"
+git -C "$REPO" config core.hooksPath hooks
+
+if [ "$UNI_DATA_OK" = 1 ]; then
+    if ! bash "$REPO/hooks/update-forbidden.sh"; then
+        warn_setup "Forbidden-terms list for the pre-commit hook not created (hooks/update-forbidden.sh failed)"
+    fi
+else
+    warn_setup "Forbidden-terms list not created (1Password not readable) - pre-commit hook only checks generic patterns. Rerun ./setup.sh or: bash ~/mac-setup/hooks/update-forbidden.sh"
+fi
+
+# ----------------------------
 # wireguard environment
 # ----------------------------
 

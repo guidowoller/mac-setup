@@ -162,6 +162,24 @@ missing or unfilled files. Rerun `./setup.sh` afterwards.
 
 ---
 
+## 🛡️ Pre-commit hook (no infrastructure data in the repo)
+
+`hooks/pre-commit` runs before every commit and checks only the lines you add:
+
+- against a list of forbidden terms (hostnames, IPs, peer keys, bind DN, ...)
+  in `~/.config/mac-setup/forbidden.txt` - **outside** the repo, generated from
+  the 1Password item `Mac-Setup Uni` by `hooks/update-forbidden.sh`
+  (`setup.sh` runs it and sets `core.hooksPath` to `hooks`)
+- against generic patterns (WireGuard `PrivateKey` with a real key, PEM private
+  keys, 1Password service tokens)
+
+Extra terms can be added by hand, one per line, in
+`~/.config/mac-setup/forbidden-extra.txt`. Mark a line deliberately with
+`pre-commit:allow` to skip it; bypass everything with `git commit --no-verify`
+(not recommended). `doctor.sh` checks the setup and runs a self-test.
+
+---
+
 ## 🔄 Updating configuration
 
 To sync local changes back into the repository:
@@ -187,6 +205,7 @@ Then commit:
     ├── config
     ├── launchagents
     ├── templates
+    ├── hooks
     ├── apache-directory-studio
     ├── vscode
     ├── macos

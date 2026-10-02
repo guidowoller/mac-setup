@@ -179,6 +179,56 @@ else
 fi
 
 # ----------------------------
+# Git pre-commit hook
+# ----------------------------
+
+DOCTOR_REPO="$(cd "$(dirname "$0")" && pwd)"
+HOOKS_PATH=$(git -C "$DOCTOR_REPO" config core.hooksPath 2>/dev/null || true)
+if [ "$HOOKS_PATH" = "hooks" ]; then
+    ok "git core.hooksPath = hooks"
+else
+    fail "git core.hooksPath not set to 'hooks' (rerun setup.sh or: git -C $DOCTOR_REPO config core.hooksPath hooks)"
+fi
+
+if [ -x "$DOCTOR_REPO/hooks/pre-commit" ]; then
+    ok "hooks/pre-commit is executable"
+else
+    fail "hooks/pre-commit missing or not executable (chmod +x hooks/pre-commit)"
+fi
+
+FORBIDDEN="$HOME/.config/mac-setup/forbidden.txt"
+if [ -s "$FORBIDDEN" ]; then
+    N_TERMS=$(grep -c . "$FORBIDDEN")
+    if [ "$N_TERMS" -ge 5 ]; then
+        ok "forbidden-terms list present ($N_TERMS terms)"
+    else
+        warn "forbidden-terms list has only $N_TERMS terms (bash $DOCTOR_REPO/hooks/update-forbidden.sh)"
+    fi
+
+    # Selbsttest: sauberer Commit muss durchgehen, einer mit verbotenem Begriff muss scheitern
+    HT_DIR="$(mktemp -d)"
+    HT_TERM="$(grep -v '^#' "$FORBIDDEN" | grep . | head -n 1)"
+    (
+        cd "$HT_DIR" && git init -q . \
+            && git config user.name doctor && git config user.email doctor@localhost \
+            && git config core.hooksPath "$DOCTOR_REPO/hooks" \
+            && git commit -q --allow-empty -m init >/dev/null 2>&1
+    )
+    echo "harmless line" > "$HT_DIR/clean.txt"
+    ( cd "$HT_DIR" && git add clean.txt && git commit -q -m clean >/dev/null 2>&1 ); CLEAN_RC=$?
+    printf '%s\n' "$HT_TERM" > "$HT_DIR/dirty.txt"
+    ( cd "$HT_DIR" && git add dirty.txt && git commit -q -m dirty >/dev/null 2>&1 ); DIRTY_RC=$?
+    rm -rf "$HT_DIR"
+    if [ "$CLEAN_RC" -eq 0 ] && [ "$DIRTY_RC" -ne 0 ]; then
+        ok "pre-commit self-test (clean passes, forbidden term blocked)"
+    else
+        fail "pre-commit self-test failed (clean rc=$CLEAN_RC, forbidden rc=$DIRTY_RC)"
+    fi
+else
+    warn "forbidden-terms list missing ($FORBIDDEN) - run: bash $DOCTOR_REPO/hooks/update-forbidden.sh (needs 1Password)"
+fi
+
+# ----------------------------
 # VS Code CLI
 # ----------------------------
 

@@ -105,3 +105,14 @@ SSH-Host/-User stehen nicht mehr im Repository, sondern im 1Password-Item
 Wichtig: Die **Git-History** enthaelt diese Werte weiterhin (alte Commits).
 Das Entfernen aus dem aktuellen Stand ersetzt keinen History-Rewrite. Die
 Daten sind keine Zugangsdaten, erleichtern aber das Kartieren der Infrastruktur.
+
+---
+
+## Pre-commit hook gegen Wiederholung
+
+`hooks/pre-commit` blockiert Commits, die Uni-Infrastrukturdaten oder Schluessel
+in neu hinzugefuegten Zeilen enthalten. Die Verbotsliste mit den echten Werten
+liegt nicht im Repo, sondern unter `~/.config/mac-setup/forbidden.txt` und wird
+aus 1Password erzeugt (`hooks/update-forbidden.sh`). Der Hook schuetzt nur vor
+versehentlichen Commits: `git commit --no-verify` umgeht ihn, und er erkennt nur
+Begriffe, die auf der Liste stehen.

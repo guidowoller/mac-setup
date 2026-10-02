@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+# pre-commit: verhindert, dass Infrastruktur-Daten oder Schluessel ins Repo kommen.
+#
+# Geprueft werden nur NEU hinzugefuegte Zeilen (git diff --cached).
+#  1. Verbotsliste ausserhalb des Repos: ~/.config/mac-setup/forbidden.txt
+#     (wird von hooks/update-forbidden.sh aus 1Password erzeugt) und optional
+#     ~/.config/mac-setup/forbidden-extra.txt (von Hand gepflegt, ein Begriff pro Zeile)
+#  2. Allgemeine Muster: WireGuard-PrivateKey, PEM-Private-Keys, 1Password-Service-Tokens
+#
+# Bewusst ueberspringen: Zeile mit "pre-commit:allow" versehen.
+# Hook umgehen (nicht empfohlen): git commit --no-verify
+
+LIST="${MAC_SETUP_FORBIDDEN:-$HOME/.config/mac-setup/forbidden.txt}"
+EXTRA="${MAC_SETUP_FORBIDDEN_EXTRA:-$HOME/.config/mac-setup/forbidden-extra.txt}"
+
+TMP="$(mktemp)"
+trap 'rm -f "$TMP"' EXIT
+
+# Hinzugefuegte Zeilen als "datei:zeile:inhalt"
+git diff --cached --no-color -U0 --diff-filter=ACMR | awk '
+/^\+\+\+ b\// { file = substr($0, 7); next }
+/^\+\+\+ /    { file = ""; next }
+/^@@ /        { match($0, /\+[0-9]+/); line = substr($0, RSTART + 1, RLENGTH - 1) + 0; next }
+/^\+/         { if (file != "") printf "%s:%d:%s\n", file, line, substr($0, 2); line++; next }
+' | grep -v 'pre-commit:allow' > "$TMP" || true
+
+[ -s "$TMP" ] || exit 0
+
+fail=0
+
+report() {  # $1 = Treffer "datei:zeile", $2 = Beschreibung
+    echo "  ✖ $1  ($2)"
+    fail=1
+}
+
+# ---- 1. Verbotsliste ----
+if [ -f "$LIST" ]; then
+    while IFS= read -r term; do
+        [ -z "$term" ] && continue
+        case "$term" in \#*) continue ;; esac
+        hits=$(grep -i -F -- "$term" "$TMP" | cut -d: -f1,2 | sort -u || true)
+        [ -n "$hits" ] || continue
+        masked="${term:0:4}…"
+        while IFS= read -r h; do
+            report "$h" "verbotener Begriff aus der Liste: $masked"
+        done <<< "$hits"
+    done < <(cat "$LIST" "$EXTRA" 2>/dev/null)
+else
+    echo "⚠️  Verbotsliste fehlt ($LIST) - nur allgemeine Muster werden geprueft."
+    echo "    Erzeugen mit: bash $(git rev-parse --show-toplevel)/hooks/update-forbidden.sh"
+fi
+
+# ---- 2. Allgemeine Muster ----
+check_re() {  # $1 = Beschreibung, $2 = Regex (ERE)
+    local hits h
+    hits=$(grep -E -- "$2" "$TMP" | cut -d: -f1,2 | sort -u || true)
+    [ -n "$hits" ] || return 0
+    while IFS= read -r h; do report "$h" "$1"; done <<< "$hits"
+}
+
+PEM_HEAD='-----BEGIN [A-Z ]*PRIVATE'
+PEM_TAIL=' KEY-----'
+check_re "WireGuard PrivateKey mit echtem Schluessel" 'PrivateKey[[:space:]]*=[[:space:]]*[A-Za-z0-9+/]{43}='
+check_re "PEM-Private-Key"                            "${PEM_HEAD}${PEM_TAIL}"
+check_re "1Password-Service-Account-Token"            'ops_[A-Za-z0-9+/=_-]{40,}'
+
+if [ "$fail" -ne 0 ]; then
+    echo ""
+    echo "Commit abgebrochen: sensible Daten in neu hinzugefuegten Zeilen."
+    echo "Entferne sie (Werte gehoeren nach 1Password / templates/), oder markiere eine"
+    echo "Zeile bewusst mit 'pre-commit:allow'. Umgehen: git commit --no-verify"
+    exit 1
+fi
+exit 0
