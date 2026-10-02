@@ -199,6 +199,22 @@ It only displays; it never pulls or pushes by itself.
 
 ---
 
+## 🍺 Brewfile check
+
+`scripts/brewcheck.sh` (installed as `~/bin/brewcheck.sh`, alias `brewcheck`)
+compares this Mac with the `Brewfile`:
+
+- in the Brewfile but not installed here (`brew bundle check`)
+- installed here but not in the Brewfile (`brew bundle cleanup`, dry run only;
+  aliases and dependencies are handled by brew itself)
+
+`brewcheck --add` offers each unlisted package interactively for the Brewfile
+(`y`/`N`/`q`); it never uninstalls anything. Packages that should deliberately
+exist on one Mac only go into `~/.config/mac-setup/brew-ignore.txt` (one name
+per line, not part of the repo). `doctor.sh` shows the result as a warning.
+
+---
+
 ## 🔄 Updating configuration
 
 To sync local changes back into the repository:

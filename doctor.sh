@@ -106,7 +106,7 @@ fi
 
 if [ -d "$HOME/bin" ]; then
     ok "~/bin exists"
-    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh"
+    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh brewcheck.sh"
     [ "$MAC_ROLE" = "privat" ] && BIN_SCRIPTS="$BIN_SCRIPTS ms365sync-run.sh sync_calendars.py"
     for script in $BIN_SCRIPTS; do
         if [ -f "$HOME/bin/$script" ]; then
@@ -176,6 +176,19 @@ if [ -f "$LDAP_CONN" ]; then
     fi
 else
     warn "LDAP connections.xml not found ($LDAP_CONN) - Directory Studio plugin installed / setup.sh run?"
+fi
+
+# ----------------------------
+# Brewfile (installierte Pakete vs. Brewfile)
+# ----------------------------
+
+if [ -x "$(dirname "$0")/scripts/brewcheck.sh" ] && command -v brew >/dev/null 2>&1; then
+    if BREW_OUT=$("$(dirname "$0")/scripts/brewcheck.sh" 2>&1); then
+        ok "Brewfile matches installed packages"
+    else
+        warn "Brewfile drift detected (details: brewcheck):"
+        echo "$BREW_OUT" | sed 's/^/        /'
+    fi
 fi
 
 # ----------------------------
