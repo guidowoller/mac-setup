@@ -17,22 +17,30 @@ mkdir -p $REPO/config
 mkdir -p $REPO/vscode
 mkdir -p $REPO/1password
 
+# Kopiert nur, wenn Quelle und Ziel nicht dieselbe Datei sind
+# (dotfiles/starship sind per Symlink ins Repo verlinkt -> nichts zu tun).
+sync_file() {
+    local src="$1" dst="$2"
+    [ -f "$src" ] || return 0
+    [ "$src" -ef "$dst" ] && return 0
+    cp "$src" "$dst"
+}
+
 # ----------------------------
 # dotfiles
 # ----------------------------
 
-[ -f ~/.zshrc ] && cp ~/.zshrc $REPO/dotfiles/
-[ -f ~/.zshrc.iterm ] && cp ~/.zshrc.iterm $REPO/dotfiles/
-[ -f ~/.vimrc ] && cp ~/.vimrc $REPO/dotfiles/
-[ -f ~/.nanorc ] && cp ~/.nanorc $REPO/dotfiles/
-[ -f ~/.tmux.conf ] && cp ~/.tmux.conf $REPO/dotfiles/
-[ -f ~/.gitconfig ] && cp ~/.gitconfig $REPO/dotfiles/
+sync_file ~/.zshrc "$REPO/dotfiles/.zshrc"
+sync_file ~/.zshrc.iterm "$REPO/dotfiles/.zshrc.iterm"
+sync_file ~/.vimrc "$REPO/dotfiles/.vimrc"
+sync_file ~/.nanorc "$REPO/dotfiles/.nanorc"
+sync_file ~/.tmux.conf "$REPO/dotfiles/.tmux.conf"
+sync_file ~/.gitconfig "$REPO/dotfiles/.gitconfig"
 
 # ----------------------------
-# ssh config
+# ssh config: bewusst NICHT zurueckgesynct
 # ----------------------------
-
-[ -f ~/.ssh/config ] && cp ~/.ssh/config $REPO/ssh/
+# ~/.ssh/config wird aus Templates erzeugt und kann Uni-Daten enthalten.
 
 # ----------------------------
 # starship config
@@ -41,7 +49,7 @@ mkdir -p $REPO/1password
 STARSHIP_SRC="$HOME/.config/starship.toml"
 STARSHIP_DST="$REPO/config/starship.toml"
 
-[ -f "$STARSHIP_SRC" ] && cp "$STARSHIP_SRC" "$STARSHIP_DST"
+sync_file "$STARSHIP_SRC" "$STARSHIP_DST"
 
 # ----------------------------
 # vscode settings
@@ -49,8 +57,8 @@ STARSHIP_DST="$REPO/config/starship.toml"
 
 VSCODE="$HOME/Library/Application Support/Code/User"
 
-[ -f "$VSCODE/settings.json" ] && cp "$VSCODE/settings.json" $REPO/vscode/
-[ -f "$VSCODE/keybindings.json" ] && cp "$VSCODE/keybindings.json" $REPO/vscode/
+sync_file "$VSCODE/settings.json" "$REPO/vscode/settings.json"
+sync_file "$VSCODE/keybindings.json" "$REPO/vscode/keybindings.json"
 
 code --list-extensions > $REPO/vscode/extensions.txt 2>/dev/null || true
 
@@ -79,16 +87,18 @@ done
 NVIM_SRC="$HOME/.config/nvim"
 NVIM_DST="$REPO/config/nvim"
 
-if [ -d "$NVIM_SRC" ]; then
-    rm -rf "$NVIM_DST"
-    cp -R "$NVIM_SRC" "$NVIM_DST"
+# Normalfall: ~/.config/nvim ist Symlink ins Repo -> nichts zu synchronisieren.
+# Nur wenn es ein echtes Verzeichnis ist, wird es ins Repo gespiegelt (ohne zu loeschen).
+if [ -d "$NVIM_SRC" ] && [ ! -L "$NVIM_SRC" ] && ! [ "$NVIM_SRC" -ef "$NVIM_DST" ]; then
+    mkdir -p "$NVIM_DST"
+    rsync -a --exclude 'nvim' "$NVIM_SRC"/ "$NVIM_DST"/
 fi
 
 # ----------------------------
 # 1password agent
 # ----------------------------
 
-[ -f ~/.config/1password/ssh/agent.toml ] && cp ~/.config/1password/ssh/agent.toml $REPO/1password/
+sync_file ~/.config/1password/ssh/agent.toml "$REPO/1password/agent.toml"
 
 # ----------------------------
 # wireguard: bewusst NICHT zurueckgesynct

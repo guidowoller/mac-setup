@@ -239,7 +239,7 @@ if [ -e "$NVIM_DST" ] && [ ! -L "$NVIM_DST" ]; then
 fi
 
 # symlink setzen
-ln -sf "$NVIM_SRC" "$NVIM_DST"
+ln -sfn "$NVIM_SRC" "$NVIM_DST"
 
 # sicherstellen dass keine alte init.vim Probleme macht
 if [ -f "$NVIM_DST/init.vim" ]; then

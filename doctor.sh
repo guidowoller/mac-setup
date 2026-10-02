@@ -232,6 +232,28 @@ else
 fi
 
 # ----------------------------
+# Git-History-Hygiene (alle Refs inkl. Tags)
+# ----------------------------
+
+HIST_REPO="$(cd "$(dirname "$0")" && pwd)"
+ALL_REVS=$(git -C "$HIST_REPO" rev-list --all 2>/dev/null)
+if [ -n "$ALL_REVS" ]; then
+    N_ALL=$(echo "$ALL_REVS" | grep -c .)
+    N_HEAD=$(git -C "$HIST_REPO" rev-list HEAD 2>/dev/null | grep -c .)
+    if [ "$N_ALL" -eq "$N_HEAD" ]; then
+        ok "no commits outside HEAD's history (tags/branches clean)"
+    else
+        warn "$((N_ALL - N_HEAD)) commits are reachable only via other refs (tags/branches?) - check: git tag; git log --all --oneline ^HEAD"
+    fi
+    # shellcheck disable=SC2086
+    if git -C "$HIST_REPO" grep -I -q -E 'PrivateKey[[:space:]]*=[[:space:]]*[A-Za-z0-9+/]{43}=' $ALL_REVS -- . ':!doctor.sh' ':!hooks' 2>/dev/null; then
+        fail "a real-looking WireGuard PrivateKey is in the git history (all refs) - rotate the key and clean the history"
+    else
+        ok "no real WireGuard private key in git history (all refs)"
+    fi
+fi
+
+# ----------------------------
 # Git pre-commit hook
 # ----------------------------
 
