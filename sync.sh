@@ -91,23 +91,10 @@ fi
 [ -f ~/.config/1password/ssh/agent.toml ] && cp ~/.config/1password/ssh/agent.toml $REPO/1password/
 
 # ----------------------------
-# wireguard templates
+# wireguard: bewusst NICHT zurueckgesynct
 # ----------------------------
-
-WG_SRC="/opt/homebrew/etc/wireguard"
-WG_DST="$REPO/wireguard"
-
-mkdir -p "$WG_DST"
-
-for f in "$WG_SRC"/*.conf; do
-[ -f "$f" ] || continue
-fname=$(basename "$f")
-
-sed -e 's/^PrivateKey.*/PrivateKey = <ENTER_PRIVATE_KEY_HERE>/' \
-    -e 's/^Address.*/Address = <ENTER_IP_ADDRESS_HERE>/' \
-    "$f" > "$WG_DST/$fname"
-
-done
+# Die Templates im Repo sind massgeblich (nur Platzhalter). Installierte Configs
+# enthalten Key, Adresse und Server-Daten und duerfen nie ins Repo zurueck.
 
 # ----------------------------
 # iTerm2 profiles (check)

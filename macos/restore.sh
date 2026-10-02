@@ -36,9 +36,19 @@ fi
 # Global macOS settings
 # ----------------------------
 
-if [ -f "$SRC/global.plist" ]; then
-    cp "$SRC/global.plist" "$PREF/.GlobalPreferences.plist"
-fi
+# Frueher wurde die komplette .GlobalPreferences.plist gesichert und zurueckkopiert.
+# Darin standen aber auch persoenliche Daten (Textersetzungen mit E-Mail-Adressen),
+# deshalb werden hier nur noch die gewollten Einstellungen einzeln gesetzt.
+defaults write -g AppleInterfaceStyleSwitchesAutomatically -bool true
+defaults write -g AppleShowAllExtensions -bool true
+defaults write -g AppleMiniaturizeOnDoubleClick -bool false
+defaults write -g NSAutomaticCapitalizationEnabled -bool true
+defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool true
+defaults write -g com.apple.sound.beep.flash -int 0
+defaults write -g com.apple.springing.enabled -bool true
+defaults write -g com.apple.springing.delay -float 0.5
+defaults write -g com.apple.swipescrolldirection -bool false
+defaults write -g com.apple.trackpad.forceClick -bool true
 
 # ----------------------------
 # iTerm2

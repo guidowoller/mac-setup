@@ -24,7 +24,6 @@ sleep 1
 cp "$SRC/com.apple.dock.plist" "$DEST/dock.plist"
 cp "$SRC/com.apple.finder.plist" "$DEST/finder.plist"
 cp "$SRC/com.apple.screencapture.plist" "$DEST/screencapture.plist"
-cp "$SRC/.GlobalPreferences.plist" "$DEST/global.plist"
 cp "$SRC/com.googlecode.iterm2.plist" "$DEST/iterm2.plist"
 
 echo "Backup complete."
