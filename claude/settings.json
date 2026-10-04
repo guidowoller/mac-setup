@@ -17,5 +17,6 @@
       "Bash(git reset --hard *)",
       "Bash(git filter-repo *)"
     ]
-  }
+  },
+  "theme": "auto"
 }
