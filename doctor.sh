@@ -34,6 +34,16 @@ for cmd in tmux fzf eza starship wg nvim zoxide yazi autossh fswatch uv; do
 done
 
 # ----------------------------
+# Claude Code
+# ----------------------------
+
+if command -v claude >/dev/null 2>&1 || [ -x "$HOME/.local/bin/claude" ]; then
+    ok "Claude Code installed"
+else
+    warn "Claude Code missing (setup.sh installiert es)"
+fi
+
+# ----------------------------
 # 1Password SSH agent
 # ----------------------------
 

@@ -355,6 +355,25 @@ if [ "$UNI_DATA_OK" = 1 ]; then
 fi
 
 # ----------------------------
+# Claude Code (lokales CLI)
+# ----------------------------
+# Nativer Installer von Anthropic (aktualisiert sich selbst). Idempotent:
+# nur wenn `claude` weder im PATH noch in ~/.local/bin liegt.
+
+if command -v claude >/dev/null 2>&1 || [ -x "$HOME/.local/bin/claude" ]; then
+    echo "Claude Code already installed."
+else
+    echo "Installing Claude Code..."
+    CC_TMP="$(mktemp)"
+    if curl -fsSL https://claude.ai/install.sh -o "$CC_TMP" && bash "$CC_TMP"; then
+        echo "Claude Code installed."
+    else
+        warn_setup "Claude Code konnte nicht installiert werden (manuell: curl -fsSL https://claude.ai/install.sh | bash)"
+    fi
+    rm -f "$CC_TMP"
+fi
+
+# ----------------------------
 # Git pre-commit hook (verhindert, dass Uni-Daten/Schluessel ins Repo kommen)
 # ----------------------------
 # Der Hook liegt im Repo (hooks/), die Verbotsliste mit echten Werten NICHT:
