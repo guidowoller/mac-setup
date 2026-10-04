@@ -44,7 +44,6 @@ First check the warnings `setup.sh` listed at the end; fix them and rerun
 - [ ] Google Chrome
 - [ ] Firefox
 - [ ] Microsoft Edge
-- [ ] ChatGPT
 - [ ] Claude (desktop app)
 - [ ] Mattermost
 - [ ] WhatsApp
