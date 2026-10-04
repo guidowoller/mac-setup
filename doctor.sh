@@ -43,6 +43,12 @@ else
     warn "Claude Code missing (setup.sh installiert es)"
 fi
 
+if [ "$HOME/.claude/settings.json" -ef "$(dirname "$0")/claude/settings.json" ]; then
+    ok "Claude Code settings linked (deny/ask rules)"
+else
+    warn "~/.claude/settings.json ist nicht das Repo-File (setup.sh verlinkt es)"
+fi
+
 # ----------------------------
 # 1Password SSH agent
 # ----------------------------

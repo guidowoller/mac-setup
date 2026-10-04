@@ -106,31 +106,7 @@ sync_file ~/.config/1password/ssh/agent.toml "$REPO/1password/agent.toml"
 # Die Templates im Repo sind massgeblich (nur Platzhalter). Installierte Configs
 # enthalten Key, Adresse und Server-Daten und duerfen nie ins Repo zurueck.
 
-# ----------------------------
-# iTerm2 profiles (check)
-# ----------------------------
-
-ITERM_PROFILE="$REPO/config/iterm2-profiles.json"
-ITERM_PLIST="$HOME/Library/Preferences/com.googlecode.iterm2.plist"
-
-if [ ! -f "$ITERM_PROFILE" ]; then
-    echo ""
-    echo "⚠️  iTerm2 profiles missing!"
-    echo "Export them manually:"
-    echo "iTerm2 → Settings → Profiles → Other Actions → Export JSON Profiles"
-    echo "Save to: $ITERM_PROFILE"
-    echo ""
-else
-    if [ -f "$ITERM_PLIST" ] && [ "$ITERM_PROFILE" -ot "$ITERM_PLIST" ]; then
-        echo ""
-        echo "⚠️  iTerm2 profiles outdated!"
-        echo "You changed iTerm settings but did not re-export profiles."
-        echo "Please re-export to: $ITERM_PROFILE"
-        echo ""
-    else
-        echo "✓ iTerm2 profiles up to date"
-    fi
-fi
+# iTerm2: Einstellungen kommen aus macos/preferences/iterm2.plist (backup.sh/restore.sh).
 
 echo "Sync complete."
 

@@ -374,6 +374,24 @@ else
 fi
 
 # ----------------------------
+# Claude Code Berechtigungen (claude/settings.json)
+# ----------------------------
+# Sperrt op read/item get, ~/.ssh und die Verbotsliste fuer Claude; fragt bei
+# push/rm/sudo nach. Vorhandene, abweichende Datei wird nicht ueberschrieben.
+
+CC_SRC="$REPO/claude/settings.json"
+CC_DST="$HOME/.claude/settings.json"
+mkdir -p "$HOME/.claude"
+if [ -L "$CC_DST" ] || [ ! -e "$CC_DST" ]; then
+    ln -sfn "$CC_SRC" "$CC_DST"
+    echo "Claude Code settings linked."
+elif [ "$CC_DST" -ef "$CC_SRC" ]; then
+    :
+else
+    warn_setup "~/.claude/settings.json existiert bereits und wurde nicht ersetzt (Regeln aus $CC_SRC manuell uebernehmen)"
+fi
+
+# ----------------------------
 # Git pre-commit hook (verhindert, dass Uni-Daten/Schluessel ins Repo kommen)
 # ----------------------------
 # Der Hook liegt im Repo (hooks/), die Verbotsliste mit echten Werten NICHT:
