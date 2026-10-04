@@ -1,23 +1,24 @@
 # Post-Install Checklist
 
-Follow this checklist after running `bootstrap.sh` and `setup.sh`.
+Manual steps after `mac-bootstrap.sh` / `setup.sh` (see [README](README.md)).
+First check the warnings `setup.sh` listed at the end; fix them and rerun
+`./setup.sh` if needed.
 
 ---
 
 ## ⚙️ macOS Settings
 
-- [ ] Enable Full Disk Access  
-      System Settings → Privacy & Security → Full Disk Access  
-      Add: iTerm
+- [ ] Full Disk Access for iTerm  
+      System Settings → Privacy & Security → Full Disk Access → add iTerm
 
-- [ ] Adjust Spotlight Search
-
-- [ ] Downloads watcher: grant Full Disk Access to `/bin/bash`  
+- [ ] Full Disk Access for `/bin/bash` (downloads watcher)  
       System Settings → Privacy & Security → Full Disk Access → `+` → `/bin/bash`  
       (without it the background agent cannot read ~/Downloads or write to iCloud Drive)
 
-- [ ] Private Mac only: calendar sync access  
-      Run once in a terminal and allow the calendar prompt:
+- [ ] Adjust Spotlight search
+
+- [ ] Private Mac only: calendar access for the sync  
+      Run once and allow the calendar prompt:
 
       uv run --script ~/bin/sync_calendars.py --dry-run
 
@@ -33,7 +34,7 @@ Follow this checklist after running `bootstrap.sh` and `setup.sh`.
 
 ## 📦 Additional Software
 
-- [ ] Install LRZ Sync+Share  
+- [ ] LRZ Sync+Share  
       https://syncandshare.lrz.de/download_client
 
 ---
@@ -44,6 +45,7 @@ Follow this checklist after running `bootstrap.sh` and `setup.sh`.
 - [ ] Firefox
 - [ ] Microsoft Edge
 - [ ] ChatGPT
+- [ ] Claude (desktop app)
 - [ ] Mattermost
 - [ ] WhatsApp
 
@@ -51,59 +53,62 @@ Follow this checklist after running `bootstrap.sh` and `setup.sh`.
 
 ## 🔧 Application Setup
 
+- [ ] Claude Code  
+      → run `claude` once and sign in  
+      → `/permissions` shows the deny/ask rules from `claude/settings.json`  
+      (if setup warned that `~/.claude/settings.json` already exists: merge the rules or remove the file and rerun `./setup.sh`)
+
 - [ ] Apache Directory Studio  
       → verify LDAP connection "Uni LDAP" (host/port/bind DN come from 1Password)  
       → enter password (not stored in the repo)
 
 - [ ] Windows App  
-      → import winadmin connection from iCloud
+      → import winadmin connection from iCloud  
       → set password and save
 
 - [ ] Calendar  
       → verify calendars are visible
 
 - [ ] KeePassXC  
-      → open dummy database (incl. key file) from icloud
+      → open dummy database (incl. key file) from iCloud
 
 ---
 
 ## 🧪 System Tests
 
-- [ ] Check mode status
+- [ ] Health check (tools, symlinks, WireGuard, LaunchAgents, Claude Code, hook)
+
+      ./doctor.sh
+
+- [ ] Mode
 
       mode status
+      mode arbeit
+      mode freizeit
 
-- [ ] Check VPN status
+- [ ] VPN
 
+      vpn start
       vpn status
+      vpn stop
 
-- [ ] Run `doctor.sh` (checks tools, symlinks, WireGuard, LaunchAgents)
-
-      doctor.sh
-
-- [ ] Downloads watcher: drop a test file into ~/Downloads, it should appear in iCloud Drive/Downloads after a few seconds
+- [ ] Downloads watcher: drop a test file into ~/Downloads; it should appear in
+      iCloud Drive/Downloads after a few seconds
 
       tail ~/Library/Logs/downloads-sync.log
 
-- [ ] Private Mac only: run MS365 / calendar sync
+- [ ] Private Mac only: calendar sync
 
       ms365.sh run
       ms365.sh check
 
-- [ ] Test VPN
+- [ ] Repo state
 
-      vpn start
-      vpn status
-
-- [ ] Test mode switching
-
-      mode arbeit
-      mode freizeit
+      drift
+      brewcheck
 
 ---
 
 ## ✅ Done
 
 - [ ] Everything works as expected
-
-You can now delete this file if desired.
