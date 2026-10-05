@@ -18,5 +18,6 @@
       "Bash(git filter-repo *)"
     ]
   },
-  "theme": "auto"
+  "theme": "auto",
+  "model": "sonnet"
 }
