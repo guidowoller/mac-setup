@@ -1,23 +1,125 @@
 {
-  "permissions": {
-    "deny": [
-      "Bash(op read *)",
-      "Bash(op item get *)",
-      "Bash(op item list *)",
-      "Bash(op inject *)",
-      "Read(~/.ssh/**)",
-      "Read(~/.config/mac-setup/**)",
-      "Read(/etc/wireguard/**)",
-      "Read(/opt/homebrew/etc/wireguard/**)"
+  "hooks" : {
+    "Notification" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
     ],
-    "ask": [
+    "PermissionRequest" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "PostToolUse" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "SessionEnd" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "Stop" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "StopFailure" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStop" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit" : [
+      {
+        "hooks" : [
+          {
+            "command" : "\/Users\/guido\/.config\/iterm2\/cc-status",
+            "type" : "command"
+          }
+        ]
+      }
+    ]
+  },
+  "model" : "sonnet",
+  "permissions" : {
+    "ask" : [
       "Bash(git push *)",
       "Bash(rm *)",
       "Bash(sudo *)",
       "Bash(git reset --hard *)",
       "Bash(git filter-repo *)"
+    ],
+    "deny" : [
+      "Bash(op read *)",
+      "Bash(op item get *)",
+      "Bash(op item list *)",
+      "Bash(op inject *)",
+      "Read(~\/.ssh\/**)",
+      "Read(~\/.config\/mac-setup\/**)",
+      "Read(\/etc\/wireguard\/**)",
+      "Read(\/opt\/homebrew\/etc\/wireguard\/**)"
     ]
   },
-  "theme": "auto",
-  "model": "sonnet"
+  "theme" : "auto"
 }
