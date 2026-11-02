@@ -89,7 +89,6 @@ arbeit|u)
     stop_app "WhatsApp"
 
     # start work apps
-    start_app "Mattermost" min
     start_app "Mail" min
     start_app "Windows App" min
     start_app "LRZ Sync+Share"
@@ -109,7 +108,6 @@ freizeit|f|d)
 
     # stop work apps
     stop_app "Firefox"
-    stop_app "Mattermost"
     stop_app "Windows App"
     stop_app "LRZ Sync+Share"
     stop_app "Eclipse"
@@ -133,7 +131,6 @@ alles|a)
     set_wallpaper "$WALLPAPER_DIR/wallpaper-alles-erlaubt.jpg"
 
     # start all apps
-    start_app "Mattermost" min
     start_app "Mail" min
     start_app "Windows App" min
     start_app "WhatsApp" min 
@@ -156,7 +153,6 @@ ich|i)
 
     # kill everything relevant
     stop_app "Firefox"
-    stop_app "Mattermost"
     stop_app "Windows App"
     stop_app "Microsoft Edge"
     stop_app "Vivaldi"
