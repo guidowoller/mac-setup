@@ -2,7 +2,7 @@
 
 MODE="$1"
 
-WALLPAPER_DIR="$HOME/Documents/wallpaper"
+WALLPAPER_DIR="$HOME/Documents/Resourcen/Wallpaper"
 STATE_FILE="$HOME/.mac-mode"
 
 # ----------------------------
