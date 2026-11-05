@@ -127,6 +127,10 @@ alias ms365="ms365.sh"
 #script aliase
 alias vpn="~/mac-setup/scripts/vpn.sh"
 alias mode="~/mac-setup/scripts/mode.sh"
+alias mi="mode i"
+alias mu="mode u"
+alias mf="mode f"
+alias ma="mode a"
 
 # ----------------------------
 # History
