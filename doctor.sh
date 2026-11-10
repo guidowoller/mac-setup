@@ -122,7 +122,7 @@ fi
 
 if [ -d "$HOME/bin" ]; then
     ok "~/bin exists"
-    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh brewcheck.sh histsync.sh upgrade.sh"
+    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh brewcheck.sh histsync.sh upgrade.sh ldap-restore.sh"
     [ "$MAC_ROLE" = "privat" ] && BIN_SCRIPTS="$BIN_SCRIPTS ms365sync-run.sh sync_calendars.py"
     for script in $BIN_SCRIPTS; do
         if [ -f "$HOME/bin/$script" ]; then
@@ -317,6 +317,18 @@ if [ -s "$FORBIDDEN" ]; then
     fi
 else
     warn "forbidden-terms list missing ($FORBIDDEN) - run: bash $DOCTOR_REPO/hooks/update-forbidden.sh (needs 1Password)"
+fi
+
+# ----------------------------
+# Apache Directory Studio (LDAP-Verbindung)
+# ----------------------------
+
+if [ -d "$HOME/eclipse-workspace/.metadata" ]; then
+    if [ -x "$(dirname "$0")/scripts/ldap-restore.sh" ] && "$(dirname "$0")/scripts/ldap-restore.sh" --check >/dev/null 2>&1; then
+        ok "LDAP connections.xml present"
+    else
+        warn "LDAP connections.xml fehlt (nach Eclipse-Update?) - ldap-restore.sh ausfuehren"
+    fi
 fi
 
 # ----------------------------
