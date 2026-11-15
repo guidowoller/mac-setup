@@ -118,6 +118,9 @@ alias upgrade="$HOME/bin/upgrade.sh"
 alias drift="$HOME/bin/drift.sh"
 alias brewcheck="$HOME/bin/brewcheck.sh"
 
+# Favoriten-Verzeichnisse (fav / f), siehe dotfiles/favorites.zsh
+[ -f "$HOME/mac-setup/dotfiles/favorites.zsh" ] && source "$HOME/mac-setup/dotfiles/favorites.zsh"
+
 # nvim for vi
 alias vi="nvim"
 

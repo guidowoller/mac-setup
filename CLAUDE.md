@@ -34,6 +34,7 @@ Sprache: Deutsch. Bei Unsicherheit klar sagen, nichts erfinden (keine Fakten, Qu
 - `setup.sh` Ersteinrichtung/Re-Run · `doctor.sh` Gesundheitscheck (inkl. Git-History-Hygiene)
 - `scripts/drift.sh` Abweichung Repo ↔ Mac · `scripts/brewcheck.sh` Brewfile-Abgleich
 - `scripts/histsync.sh` Shell-History per iCloud · `scripts/upgrade.sh` Pull + Updates
+- `dotfiles/favorites.zsh` + `scripts/fav-resolve.sh` + Favoriten-Verzeichnisse (`fav`/`f`); echte Liste in iCloud (`bootstrap/favorites.txt`), im Repo nur `config/favorites.example.txt`
 - `scripts/ldap-restore.sh` LDAP-Verbindung (Directory Studio) nach Eclipse-Update wiederherstellen
 - Dotfiles in `dotfiles/` sind per Symlink verlinkt; `.zshrc.iterm` wird nur in iTerm geladen.
 

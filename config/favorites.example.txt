@@ -1,0 +1,20 @@
+# VORLAGE fuer die Favoritenliste von `fav` / `f`.
+# Die echte Liste liegt NICHT im Repo, sondern in iCloud:
+#   ~/Library/Mobile Documents/com~apple~CloudDocs/bootstrap/favorites.txt
+# (cp config/favorites.example.txt dorthin und anpassen)
+# Format:  kuerzel/kuerzel;name;pfad
+# - Kuerzel und Namen sind nicht case-sensitiv.
+# - ~ = Home. Pfade duerfen * enthalten (erster Treffer, alphabetisch), z. B.
+#   Google Drive / OneDrive, deren Ordnername Konto-Daten enthaelt.
+# - Backslash-Escapes (\ und \~) werden toleriert, Anfuehrungszeichen um den Pfad auch.
+# - Name darf Aliasse enthalten: name/alias (z. B. itsec/sec).
+# - Optional 4. Feld: Modi (aus ~/.mac-mode), z. B.  ...;pfad;arbeit,alles
+#   -> Eintrag erscheint nur im Menue dieser Modi; `f <kuerzel>` geht immer.
+# - Mac-spezifische Eintraege: `fav add <name> [kuerzel]` -> ~/.config/mac-setup/favorites-local.txt
+#   Fuer alle Macs: `fav add -s <name> [kuerzel]` (schreibt in die iCloud-Datei).
+d;downloads;~/Library/Mobile Documents/com~apple~CloudDocs/Downloads
+p;projekte;~/Documents/Projekte
+a;areas;~/Documents/Areas
+r;resourcen;~/Documents/Resourcen
+v;archiv;~/Documents/Archiv
+i;icloud;~/Library/Mobile Documents/com~apple~CloudDocs
