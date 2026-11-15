@@ -94,6 +94,10 @@ arbeit|u)
     start_app "LRZ Sync+Share"
     start_app "Firefox"
 
+    # Claude Desktop: in jedem Mode, minimiert gestartet. Nur wenn sie noch nicht laeuft,
+    # damit eine geoeffnete App beim Moduswechsel nicht minimiert wird.
+    pgrep -x "Claude" >/dev/null || start_app "Claude" min
+
     # VPN
     ~/mac-setup/scripts/vpn.sh start
     echo "arbeit" > "$STATE_FILE"
@@ -118,6 +122,10 @@ freizeit|f|d)
     start_app "Microsoft Edge"
     start_app "Vivaldi" min
 
+    # Claude Desktop: in jedem Mode, minimiert gestartet. Nur wenn sie noch nicht laeuft,
+    # damit eine geoeffnete App beim Moduswechsel nicht minimiert wird.
+    pgrep -x "Claude" >/dev/null || start_app "Claude" min
+
     # VPN
     ~/mac-setup/scripts/vpn.sh stop
     echo "freizeit" > "$STATE_FILE"
@@ -139,6 +147,10 @@ alles|a)
     start_app "Microsoft Edge" min
     start_app "Vivaldi" min
 
+    # Claude Desktop: in jedem Mode, minimiert gestartet. Nur wenn sie noch nicht laeuft,
+    # damit eine geoeffnete App beim Moduswechsel nicht minimiert wird.
+    pgrep -x "Claude" >/dev/null || start_app "Claude" min
+
     # VPN
     ~/mac-setup/scripts/vpn.sh start
     echo "alles" > "$STATE_FILE"
@@ -159,6 +171,10 @@ ich|i)
     stop_app "WhatsApp"
     stop_app "LRZ Sync+Share"
     stop_app "Eclipse"
+
+    # Claude Desktop: in jedem Mode, minimiert gestartet. Nur wenn sie noch nicht laeuft,
+    # damit eine geoeffnete App beim Moduswechsel nicht minimiert wird.
+    pgrep -x "Claude" >/dev/null || start_app "Claude" min
 
     # VPN
     ~/mac-setup/scripts/vpn.sh stop

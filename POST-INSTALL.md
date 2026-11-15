@@ -73,6 +73,11 @@ First check the warnings `setup.sh` listed at the end; fix them and rerun
 
 ---
 
+## 📂 Favoriten (`f`)
+
+- [ ] iCloud Drive ist synchronisiert (gleicher Apple-Account), `bootstrap/favorites.txt` ist da
+- [ ] `f` in iTerm öffnet das Menü; sonst `doctor` ausführen
+
 ## 🧪 System Tests
 
 - [ ] Health check (tools, symlinks, WireGuard, LaunchAgents, Claude Code, hook)

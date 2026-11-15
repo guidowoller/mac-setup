@@ -332,6 +332,17 @@ if [ -d "$HOME/eclipse-workspace/.metadata" ]; then
 fi
 
 # ----------------------------
+# Favoriten (fav / f)
+# ----------------------------
+
+FAV_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap"
+if [ -f "$FAV_DIR/favorites.txt" ]; then
+    ok "Favoritenliste vorhanden (iCloud)"
+else
+    warn "Favoritenliste fehlt: $FAV_DIR/favorites.txt (iCloud-Sync? Vorlage: config/favorites.example.txt)"
+fi
+
+# ----------------------------
 # VS Code CLI
 # ----------------------------
 

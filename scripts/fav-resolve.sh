@@ -6,11 +6,14 @@
 #   fav-resolve.sh get <abfrage>     Pfad zu Kuerzel/Name/eindeutigem Namensanfang (immer alle Eintraege)
 #                                    (Exit 1 = nicht gefunden, 2 = mehrdeutig)
 #   fav-resolve.sh names             Zeilen fuer die zsh-Vervollstaendigung
-#   fav-resolve.sh add <dir> [-s] <name> [kuerzel]   Eintrag speichern (lokal; -s = iCloud/alle Macs)
+#   fav-resolve.sh add <dir> [-s] <name> [kuerzel]   Eintrag speichern (Standard: favorites-local.txt; -s = favorites.txt)
+#   fav-resolve.sh path-local        Pfad der favorites-local.txt (fuer `fav edit`)
 #
 # Dateien (spaetere ueberschreiben fruehere gleichen Namens), beide ausserhalb des Repos:
-#   iCloud: bootstrap/favorites.txt             gemeinsam fuer alle Macs
-#   ~/.config/mac-setup/favorites-local.txt     nur dieser Mac
+#   iCloud: bootstrap/favorites.txt             allgemeine Favoriten
+#   iCloud: bootstrap/favorites-local.txt       eigene/persoenliche Favoriten (ueberschreiben die allgemeinen)
+# Beide synchronisieren ueber iCloud auf alle Macs; was nur in bestimmten Modi im Menue
+# erscheinen soll, wird ueber das 4. Feld (modi) gesteuert.
 # Vorlage fuer die iCloud-Datei: config/favorites.example.txt im Repo
 #
 # Zeilenformat:  kuerzel[/kuerzel...];name[/alias...];pfad[;modi]
@@ -21,7 +24,7 @@
 
 REPO="${MAC_SETUP_REPO:-$HOME/mac-setup}"
 SHARED="${FAV_SHARED:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap/favorites.txt}"
-LOCAL="${FAV_LOCAL:-$HOME/.config/mac-setup/favorites-local.txt}"
+LOCAL="${FAV_LOCAL:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap/favorites-local.txt}"
 MODE_FILE="${FAV_MODE_FILE:-$HOME/.mac-mode}"
 
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
@@ -112,6 +115,9 @@ case "$cmd" in
 $tab
 EOT
         ;;
+    path-local)
+        printf '%s\n' "$LOCAL"
+        ;;
     names)
         table | while IFS=$'\t' read -r keys name path modes; do
             esc="${path//:/\\:}"
@@ -185,7 +191,7 @@ EOT
         echo "✓ Favorit '$name' -> $shown  ($target)"
         ;;
     *)
-        echo "Usage: $(basename "$0") list [--menu]|get <abfrage>|names|add <dir> [-s] <name> [kuerzel]" >&2
+        echo "Usage: $(basename "$0") list [--menu]|get <abfrage>|names|path-local|add <dir> [-s] <name> [kuerzel]" >&2
         exit 2
         ;;
 esac

@@ -10,8 +10,8 @@
 # - Name darf Aliasse enthalten: name/alias (z. B. itsec/sec).
 # - Optional 4. Feld: Modi (aus ~/.mac-mode), z. B.  ...;pfad;arbeit,alles
 #   -> Eintrag erscheint nur im Menue dieser Modi; `f <kuerzel>` geht immer.
-# - Mac-spezifische Eintraege: `fav add <name> [kuerzel]` -> ~/.config/mac-setup/favorites-local.txt
-#   Fuer alle Macs: `fav add -s <name> [kuerzel]` (schreibt in die iCloud-Datei).
+# - `fav add <name> [kuerzel]` speichert in bootstrap/favorites-local.txt (iCloud),
+#   `fav add -s ...` in bootstrap/favorites.txt. Gleicher Name in -local ueberschreibt.
 d;downloads;~/Library/Mobile Documents/com~apple~CloudDocs/Downloads
 p;projekte;~/Documents/Projekte
 a;areas;~/Documents/Areas

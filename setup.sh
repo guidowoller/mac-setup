@@ -683,6 +683,15 @@ else
 fi
 
 # ----------------------------
+# Favoriten (fav / f): Listen liegen in iCloud, nicht im Repo
+# ----------------------------
+
+FAV_ICLOUD="$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap"
+if [ ! -f "$FAV_ICLOUD/favorites.txt" ]; then
+    warn_setup "Favoritenliste fehlt ($FAV_ICLOUD/favorites.txt) - iCloud noch nicht synchronisiert? Sonst Vorlage kopieren: cp $REPO/config/favorites.example.txt \"$FAV_ICLOUD/favorites.txt\""
+fi
+
+# ----------------------------
 # Warnings collected during setup
 # ----------------------------
 

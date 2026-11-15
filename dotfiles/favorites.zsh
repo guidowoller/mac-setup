@@ -2,9 +2,9 @@
 #   f            Menue (fzf) mit Vorschau, Enter wechselt dorthin
 #   f p          Kuerzel oder Name (nicht case-sensitiv), Namensanfang reicht: f proj
 #   f list       Tabelle aller Favoriten
-#   f add [-s] <name> [kuerzel]   aktuellen Ordner speichern (nur dieser Mac; -s = alle Macs/iCloud)
+#   f add [-s] <name> [kuerzel]   aktuellen Ordner speichern (favorites-local.txt; -s = favorites.txt)
 #   f edit       lokale Favoritenliste bearbeiten
-# Liste: iCloud bootstrap/favorites.txt (alle Macs, nicht im Repo) + ~/.config/mac-setup/favorites-local.txt
+# Liste: iCloud bootstrap/favorites.txt + bootstrap/favorites-local.txt (beide nicht im Repo)
 #   Vorlage: config/favorites.example.txt
 # Logik: ~/bin/fav-resolve.sh (aus scripts/). Muss eine Funktion sein, damit `cd` die Shell betrifft.
 
@@ -24,8 +24,8 @@ fav() {
   f                 Menue (fzf)
   f <kuerzel|name>  direkt wechseln (z. B. f p, f proj)
   f list            alle Favoriten
-  f add [-s] <name> [k]  aktuellen Ordner speichern (-s: alle Macs)
-  f edit            lokale Liste bearbeiten"
+  f add [-s] <name> [k]  aktuellen Ordner speichern (-s: allgemeine Liste)
+  f edit            eigene Liste bearbeiten"
       return 0 ;;
     list|ls)
       "$bin" list | column -t -s $'\t'
@@ -35,8 +35,7 @@ fav() {
       "$bin" add "$PWD" "$@"
       return $? ;;
     edit)
-      mkdir -p "$HOME/.config/mac-setup"
-      ${EDITOR:-nvim} "$HOME/.config/mac-setup/favorites-local.txt"
+      ${EDITOR:-nvim} "$("$bin" path-local)"
       return $? ;;
   esac
 
@@ -75,7 +74,7 @@ fav() {
 _fav() {
   local -a items
   if (( CURRENT == 2 )); then
-    items=(${(f)"$("$FAV_BIN" names 2>/dev/null)"} list:'alle anzeigen' add:'aktuellen Ordner speichern (-s: alle Macs)' edit:'lokale Liste bearbeiten' help:'Hilfe')
+    items=(${(f)"$("$FAV_BIN" names 2>/dev/null)"} list:'alle anzeigen' add:'aktuellen Ordner speichern (-s: allgemeine Liste)' edit:'eigene Liste bearbeiten' help:'Hilfe')
     _describe -t favs 'Favorit' items
   fi
 }

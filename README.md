@@ -216,6 +216,26 @@ per line, not part of the repo). `doctor.sh` shows the result as a warning.
 
 ---
 
+## 📂 Favorites (`fav` / `f`)
+
+Quick directory jumps in iTerm, e.g. to the PARA folders and cloud drives.
+
+```bash
+f            # menu (fzf) with preview
+f p          # shortcut or name, case-insensitive; a unique name prefix is enough (f proj)
+f list       # all favorites
+f add [-s] <name> [key]   # save the current directory
+f edit       # edit your own list
+```
+
+The lists are **not in the repo** (they hold personal paths) but in iCloud Drive:
+`bootstrap/favorites.txt` (general) and `bootstrap/favorites-local.txt` (own entries, override
+the general ones). Template: `config/favorites.example.txt`. Line format:
+`key[/key];name[/alias];path[;modes]`. Paths may use `~` and `*` (e.g. `GoogleDrive-*`).
+The optional 4th field restricts an entry to certain modes (from `~/.mac-mode`, e.g.
+`arbeit,alles`) in the menu; a direct `f <key>` works in every mode. Logic: `scripts/fav-resolve.sh`,
+shell function: `dotfiles/favorites.zsh`. `doctor` warns if the list is missing (iCloud not synced yet).
+
 ## 📜 Shell history sync (iCloud)
 
 The zsh history is shared between the Macs through iCloud Drive without a
