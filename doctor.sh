@@ -122,7 +122,7 @@ fi
 
 if [ -d "$HOME/bin" ]; then
     ok "~/bin exists"
-    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh brewcheck.sh histsync.sh upgrade.sh ldap-restore.sh fav-resolve.sh"
+    BIN_SCRIPTS="mode.sh vpn.sh ms365.sh a.sh ap.sh close-all-apps.sh sync_downloads.sh watch_downloads.sh drift.sh brewcheck.sh histsync.sh upgrade.sh ldap-restore.sh fav-resolve.sh repos-sync.sh docs-serve.sh"
     [ "$MAC_ROLE" = "privat" ] && BIN_SCRIPTS="$BIN_SCRIPTS ms365sync-run.sh sync_calendars.py"
     for script in $BIN_SCRIPTS; do
         if [ -f "$HOME/bin/$script" ]; then
@@ -350,6 +350,33 @@ if command -v code >/dev/null 2>&1; then
     ok "VS Code CLI available"
 else
     fail "VS Code CLI missing"
+fi
+
+# ----------------------------
+# Git-Repos / Doku-Workflow
+# ----------------------------
+
+REPOS_LIST="$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap/repos.txt"
+if [ -f "$REPOS_LIST" ]; then
+    ok "Repo-Liste vorhanden (iCloud)"
+else
+    warn "Repo-Liste fehlt: $REPOS_LIST (iCloud-Sync? Vorlage: config/repos.example.txt)"
+fi
+
+GITDOC_PKG=$(ls -d "$HOME"/.vscode/extensions/vsls-contrib.gitdoc-*/package.json 2>/dev/null | tail -1)
+if [ -n "$GITDOC_PKG" ]; then
+    ok "VS Code: GitDoc installiert"
+    # Alle gitdoc.*-Schluessel der Vorlage muessen in der installierten Extension existieren
+    # (sonst wirkt eine Einstellung stillschweigend nicht - besonders gitdoc.pushMode).
+    for key in $(grep -o '"gitdoc\.[A-Za-z]*"' "$HOME/mac-setup/vscode/workspace/mkdocs.settings.json" 2>/dev/null | sort -u); do
+        if grep -q "$key" "$GITDOC_PKG"; then
+            ok "  GitDoc-Einstellung $key bekannt"
+        else
+            fail "  GitDoc-Einstellung $key existiert nicht in der installierten Version (Vorlage vscode/workspace/mkdocs.settings.json anpassen!)"
+        fi
+    done
+else
+    warn "VS Code: GitDoc nicht installiert (setup.sh oder: code --install-extension vsls-contrib.gitdoc)"
 fi
 
 # ----------------------------

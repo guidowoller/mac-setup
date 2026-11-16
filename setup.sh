@@ -599,7 +599,10 @@ echo "Installing VS Code configuration..."
 VSCODE_DIR="$HOME/Library/Application Support/Code/User"
 mkdir -p "$VSCODE_DIR"
 
-[ -f "$REPO/vscode/settings.json" ] && cp "$REPO/vscode/settings.json" "$VSCODE_DIR/"
+# Eine leere Repo-Vorlage ({}) darf bestehende Einstellungen nicht ueberschreiben.
+if [ -f "$REPO/vscode/settings.json" ] && [ "$(tr -d '[:space:]' < "$REPO/vscode/settings.json")" != "{}" ]; then
+    cp "$REPO/vscode/settings.json" "$VSCODE_DIR/"
+fi
 [ -f "$REPO/vscode/keybindings.json" ] && cp "$REPO/vscode/keybindings.json" "$VSCODE_DIR/"
 
 CODE_BIN=""
@@ -614,6 +617,20 @@ if [ -n "$CODE_BIN" ]; then
 	[ -f "$REPO/vscode/extensions.txt" ] && xargs -L 1 "$CODE_BIN" --install-extension < "$REPO/vscode/extensions.txt"
 else
     echo "VS Code CLI not available – skipping extension installation."
+fi
+
+# ----------------------------
+# Git-Repos (Doku, Programmierprojekte) nach ~/git
+# ----------------------------
+# Die Liste (mit URLs) liegt in iCloud, nicht im Repo. Doku-Repos (typ mkdocs) bekommen
+# lokal die VS-Code-Workspace-Vorlage aus vscode/workspace/ (Auto-Commit, Bilder einfuegen).
+
+REPOS_ICLOUD="$HOME/Library/Mobile Documents/com~apple~CloudDocs/bootstrap"
+if [ -f "$REPOS_ICLOUD/repos.txt" ]; then
+    echo "Syncing Git repos (~/git)..."
+    bash "$REPO/scripts/repos-sync.sh" || warn_setup "repos-sync.sh meldet Probleme (VPN/SSH-Zugang zum GitLab? Danach: repos-sync.sh)"
+else
+    warn_setup "Repo-Liste fehlt ($REPOS_ICLOUD/repos.txt) - iCloud noch nicht synchronisiert? Sonst Vorlage kopieren: cp $REPO/config/repos.example.txt \"$REPOS_ICLOUD/repos.txt\""
 fi
 
 # ----------------------------

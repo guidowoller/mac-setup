@@ -260,6 +260,35 @@ millisecond by another tab can get lost (very rare).
 
 ---
 
+## 📝 Docs workflow (MkDocs + VS Code) and Git repos
+
+All Git repos (docs and programming projects) live in `~/git` and are cloned/updated by
+`scripts/repos-sync.sh` (also run by `setup.sh`). The list with the URLs is **not in the repo**
+but in iCloud Drive: `bootstrap/repos.txt`. Template: `config/repos.example.txt`.
+Line format: `name|url|type` (type optional).
+
+```bash
+repos-sync.sh           # clone missing repos, pull clean ones (--ff-only), apply the docs template
+repos-sync.sh --check   # status only
+docs-serve.sh           # MkDocs preview at http://127.0.0.1:8000 (dependencies via uv, nothing global)
+```
+
+Repos with type `mkdocs` get the template from `vscode/workspace/` as `.vscode/settings.json`
+and `.vscode/tasks.json` — **local only** (`.vscode/` is added to `.git/info/exclude`, the team
+repo stays untouched; a tracked `.vscode/settings.json` in the repo is never overwritten):
+
+- **Auto commit/push on save** via the GitDoc extension, only in these workspaces (never in the
+  user settings, otherwise it would commit in every project). Commit 5 s after saving, push
+  after 30 s, pull before pushing. Push mode is explicitly `push` — GitDoc's default is
+  `forcePush`, which would rewrite history on the shared GitLab repo.
+- **Screenshots**: copy a screenshot to the clipboard and paste (Cmd+V) into a Markdown file in
+  `docs/`; VS Code saves the image to `images/<page name>/` next to the page and inserts the link.
+- **Preview**: Cmd+Shift+B runs the task "MkDocs: Vorschau" (`docs-serve.sh`).
+
+`doctor` checks the repo list, the GitDoc installation and that every `gitdoc.*` key of the
+template exists in the installed extension version. The template is managed: local edits to
+`.vscode/settings.json` of a docs repo are overwritten by the next `repos-sync.sh`.
+
 ## 🔄 Keeping Macs in sync
 
 Two directions:
@@ -314,5 +343,5 @@ scripts, `./doctor.sh`, `git status`.
     ├── macos/                preference backup / restore
     ├── apache-directory-studio/
     ├── 1password/            SSH agent config
-    ├── vscode/               settings, keybindings, extensions
+    ├── vscode/               settings, keybindings, extensions, workspace/ (docs template)
     └── ssh/                  base SSH config

@@ -1,0 +1,7 @@
+# Vorlage fuer iCloud Drive/bootstrap/repos.txt (die echte Liste liegt NICHT im Repo)
+# Format je Zeile:  name|url|typ
+#   name  Ordnername unter ~/git
+#   url   Git-URL (SSH empfohlen)
+#   typ   optional; mkdocs = VS-Code-Doku-Workflow (Auto-Commit, Bilder einfuegen, Vorschau)
+doku|git@git.example.org:team/doku.git|mkdocs
+projekt-a|git@git.example.org:me/projekt-a.git|

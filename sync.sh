@@ -60,7 +60,21 @@ VSCODE="$HOME/Library/Application Support/Code/User"
 sync_file "$VSCODE/settings.json" "$REPO/vscode/settings.json"
 sync_file "$VSCODE/keybindings.json" "$REPO/vscode/keybindings.json"
 
-code --list-extensions > $REPO/vscode/extensions.txt 2>/dev/null || true
+# Extension-Liste nur ersetzen, wenn die CLI antwortet (sonst wuerde die Umleitung
+# die Datei leeren, z. B. wenn `code` nicht im PATH ist).
+CODE_BIN=""
+if [ -x "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ]; then
+    CODE_BIN="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+elif command -v code >/dev/null 2>&1; then
+    CODE_BIN="code"
+fi
+EXT_LIST=""
+[ -n "$CODE_BIN" ] && EXT_LIST=$("$CODE_BIN" --list-extensions 2>/dev/null || true)
+if [ -n "$EXT_LIST" ]; then
+    printf '%s\n' "$EXT_LIST" > "$REPO/vscode/extensions.txt"
+else
+    echo "⚠️ VS Code CLI nicht verfuegbar oder keine Extensions - extensions.txt unveraendert"
+fi
 
 # ----------------------------
 # scripts (optional safety sync)

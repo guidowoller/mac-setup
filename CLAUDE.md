@@ -35,6 +35,7 @@ Sprache: Deutsch. Bei Unsicherheit klar sagen, nichts erfinden (keine Fakten, Qu
 - `scripts/drift.sh` Abweichung Repo ↔ Mac · `scripts/brewcheck.sh` Brewfile-Abgleich
 - `scripts/histsync.sh` Shell-History per iCloud · `scripts/upgrade.sh` Pull + Updates
 - `dotfiles/favorites.zsh` + `scripts/fav-resolve.sh` + Favoriten-Verzeichnisse (`fav`/`f`); echte Liste in iCloud (`bootstrap/favorites.txt`), im Repo nur `config/favorites.example.txt`
+- `scripts/repos-sync.sh` Repos aus iCloud-Liste (`bootstrap/repos.txt`, Vorlage `config/repos.example.txt`) nach `~/git` · `scripts/docs-serve.sh` MkDocs-Vorschau · `vscode/workspace/` Doku-Vorlage (GitDoc, Bild-Einfügen)
 - `scripts/ldap-restore.sh` LDAP-Verbindung (Directory Studio) nach Eclipse-Update wiederherstellen
 - Dotfiles in `dotfiles/` sind per Symlink verlinkt; `.zshrc.iterm` wird nur in iTerm geladen.
 

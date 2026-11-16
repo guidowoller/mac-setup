@@ -1,0 +1,16 @@
+{
+  "gitdoc.enabled": true,
+  "gitdoc.autoCommitDelay": 5000,
+  "gitdoc.autoPush": "afterDelay",
+  "gitdoc.autoPushDelay": 30000,
+  "gitdoc.autoPull": "onPush",
+  "gitdoc.pullOnOpen": true,
+  "gitdoc.pushMode": "push",
+  "gitdoc.commitMessageFormat": "YYYY-MM-DD HH:mm",
+  "markdown.copyFiles.destination": {
+    "/docs/**/*": "images/${documentBaseName}/"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on"
+  }
+}
