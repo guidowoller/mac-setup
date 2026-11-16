@@ -121,6 +121,9 @@ alias brewcheck="$HOME/bin/brewcheck.sh"
 # Favoriten-Verzeichnisse (fav / f), siehe dotfiles/favorites.zsh
 [ -f "$HOME/mac-setup/dotfiles/favorites.zsh" ] && source "$HOME/mac-setup/dotfiles/favorites.zsh"
 
+# Repo-Menue (repo / c): Repo aus ~/git in VS Code oeffnen, siehe dotfiles/repos.zsh
+[ -f "$HOME/mac-setup/dotfiles/repos.zsh" ] && source "$HOME/mac-setup/dotfiles/repos.zsh"
+
 # nvim for vi
 alias vi="nvim"
 

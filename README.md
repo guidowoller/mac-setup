@@ -273,6 +273,10 @@ repos-sync.sh --check   # status only
 docs-serve.sh           # MkDocs preview at http://127.0.0.1:8000 (dependencies via uv, nothing global)
 ```
 
+`c` (function `repo`, `dotfiles/repos.zsh`, loaded in iTerm) opens a cloned repo in VS Code without
+changing the directory: `c` shows an fzf menu (mouse works) of the repos from the list that exist
+in `~/git`, `c <name>` opens directly (a name prefix is enough), `c list` shows them.
+
 Repos with type `mkdocs` get the template from `vscode/workspace/` as `.vscode/settings.json`
 and `.vscode/tasks.json` — **local only** (`.vscode/` is added to `.git/info/exclude`, the team
 repo stays untouched; a tracked `.vscode/settings.json` in the repo is never overwritten):
