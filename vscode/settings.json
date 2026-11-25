@@ -1,4 +1,5 @@
 {
     "git.autofetch": true,
-    "editor.fontSize": 14
+    "workbench.startupEditor": "none",
+    "update.showReleaseNotes": false
 }
