@@ -277,6 +277,9 @@ docs-serve.sh           # MkDocs preview at http://127.0.0.1:8000 (dependencies 
 changing the directory: `c` shows an fzf menu (mouse works) of the repos from the list that exist
 in `~/git`, `c <name>` opens directly (a name prefix is enough), `c list` shows them.
 
+`g` (function `repocd`, same file) uses the same list but changes into the repo directory (`cd`)
+instead of opening VS Code: `g` shows the fzf menu, `g <name>` jumps directly (a name prefix is enough).
+
 Repos with type `mkdocs` get the template from `vscode/workspace/` as `.vscode/settings.json`
 and `.vscode/tasks.json` — **local only** (`.vscode/` is added to `.git/info/exclude`, the team
 repo stays untouched; a tracked `.vscode/settings.json` in the repo is never overwritten):
