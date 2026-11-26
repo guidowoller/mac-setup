@@ -38,6 +38,6 @@ alias ms365="ms365.sh"
 alias vpn="~/mac-setup/scripts/vpn.sh"
 alias mode="~/mac-setup/scripts/mode.sh"
 
-if [[ "$TERM_PROGRAM" == "WarpTerminal" && -z "$TMUX" && -z "$SSH_CONNECTION" && -o interactive ]]; then
+if [[ "$TERM_PROGRAM" == "ghostty" && -z "$TMUX" && -z "$SSH_CONNECTION" && -o interactive ]]; then
   /Users/guido/bin/a.sh
 fi

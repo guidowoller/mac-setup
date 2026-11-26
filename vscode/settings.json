@@ -1,5 +1,6 @@
 {
     "git.autofetch": true,
     "workbench.startupEditor": "none",
-    "update.showReleaseNotes": false
+    "update.showReleaseNotes": false,
+    "explorer.compactFolders": false
 }
