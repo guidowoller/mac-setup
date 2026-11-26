@@ -110,3 +110,80 @@ _repo() {
 (( $+functions[compdef] )) && compdef _repo repo c
 
 alias c=repo
+
+# `g` (Alias fuer repocd): in ein Repo aus ~/git wechseln (cd) - wie `c`, aber ohne VS Code
+#   g            Menue (fzf) mit Vorschau, Enter wechselt dorthin
+#   g <name>     direkt wechseln (nicht case-sensitiv, Namensanfang reicht)
+# Nutzt dieselbe Liste wie `c` (iCloud bootstrap/repos.txt, nur geklonte Repos). Muss eine Funktion sein, damit `cd` die Shell betrifft.
+repocd() {
+  local entries sel target l n want
+  local -a hits
+
+  case "$1" in
+    -h|--help|help)
+      print "repocd / g: in ein Repo aus ~/git wechseln (cd)
+  g            Menue (fzf)
+  g <name>     direkt wechseln (Namensanfang reicht)
+Repo in VS Code oeffnen: c"
+      return 0 ;;
+  esac
+
+  if [[ ! -f "$REPOS_LIST_FILE" ]]; then
+    print -u2 "g: Repo-Liste fehlt: $REPOS_LIST_FILE (iCloud noch nicht synchronisiert?)"
+    return 1
+  fi
+  entries=$(_repos_entries)
+  if [[ -z "$entries" ]]; then
+    print -u2 "g: keine geklonten Repos unter $REPOS_BASE_DIR gefunden (repos-sync.sh ausfuehren)"
+    return 1
+  fi
+
+  if [[ -z "$1" ]]; then
+    if (( $+commands[fzf] )); then
+      sel=$(print -r -- "$entries" | fzf --delimiter=$'\t' --with-nth=1,3 --height=60% --reverse \
+            --header='Enter = wechseln · Esc = abbrechen' \
+            --preview='eza -la --color=always {2} 2>/dev/null || ls -la {2}' \
+            --preview-window=right:50%) || return 0
+      target=${${(ps:\t:)sel}[2]}
+    else
+      print -r -- "$entries" | column -t -s $'\t'
+      return 0
+    fi
+  else
+    want=${(L)1}
+    for l in ${(f)entries}; do
+      n=${(L)${(ps:\t:)l}[1]}
+      if [[ "$n" == "$want" ]]; then hits=("$l"); break; fi
+      [[ "$n" == "$want"* ]] && hits+=("$l")
+    done
+    if (( ${#hits} == 0 )); then
+      print -u2 "g: '$1' nicht gefunden. Geklonte Repos:"
+      print -r -- "$entries" | cut -f1 >&2
+      return 1
+    elif (( ${#hits} > 1 )); then
+      print -u2 "g: '$1' ist nicht eindeutig:"
+      for l in $hits; do print -u2 -r -- "  ${${(ps:\t:)l}[1]}"; done
+      return 1
+    fi
+    target=${${(ps:\t:)hits[1]}[2]}
+  fi
+
+  [[ -n "$target" ]] || return 0
+  if [[ ! -d "$target" ]]; then
+    print -u2 "g: Ordner fehlt: $target"
+    return 1
+  fi
+  builtin cd -- "$target"
+}
+
+# Tab-Vervollstaendigung fuer g (gleiche Repo-Namen wie bei c)
+_repocd() {
+  local -a names
+  if (( CURRENT == 2 )); then
+    names=(${(f)"$(_repos_entries 2>/dev/null | cut -f1)"} help:'Hilfe')
+    _describe -t repos 'Repo' names
+  fi
+}
+(( $+functions[compdef] )) && compdef _repocd repocd g
+
+alias g=repocd
