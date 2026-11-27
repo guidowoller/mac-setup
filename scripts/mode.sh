@@ -80,6 +80,10 @@ case "$MODE" in
 arbeit|u)
     echo "Mode: Arbeit"
 
+    # VPN
+    ~/mac-setup/scripts/vpn.sh start
+    echo "arbeit" > "$STATE_FILE"
+
     set_focus "Arbeit"
     set_wallpaper "$WALLPAPER_DIR/wallpaper-arbeit.jpg"
 
@@ -91,16 +95,13 @@ arbeit|u)
     # start work apps
     start_app "Mail" min
     start_app "Windows App" min
-    start_app "LRZ Sync+Share"
+    start_app "LRZ Sync+Share" 
     start_app "Firefox"
+    start_app "Ghostty" 
 
     # Claude Desktop: in jedem Mode, minimiert gestartet. Nur wenn sie noch nicht laeuft,
     # damit eine geoeffnete App beim Moduswechsel nicht minimiert wird.
     pgrep -x "Claude" >/dev/null || start_app "Claude" min
-
-    # VPN
-    ~/mac-setup/scripts/vpn.sh start
-    echo "arbeit" > "$STATE_FILE"
     ;;
 
 # ----------------------------
@@ -135,6 +136,10 @@ freizeit|f|d)
 alles|a)
     echo "Mode: Alles erlaubt"
 
+    # VPN
+    ~/mac-setup/scripts/vpn.sh start
+    echo "alles" > "$STATE_FILE"
+
     set_focus "Alles erlaubt"
     set_wallpaper "$WALLPAPER_DIR/wallpaper-alles-erlaubt.jpg"
 
@@ -150,10 +155,6 @@ alles|a)
     # Claude Desktop: in jedem Mode, minimiert gestartet. Nur wenn sie noch nicht laeuft,
     # damit eine geoeffnete App beim Moduswechsel nicht minimiert wird.
     pgrep -x "Claude" >/dev/null || start_app "Claude" min
-
-    # VPN
-    ~/mac-setup/scripts/vpn.sh start
-    echo "alles" > "$STATE_FILE"
     ;;
 
 # ----------------------------
